@@ -31,6 +31,29 @@
                             <input id="id_user" type="hidden" name="id_user" value="{order/id_user}"/>
 
                             <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="input-group">
+                                        <xsl:if test="(/page/body/module[@name='CurentUser']/container/group_id = 2)">
+                                            <div class="input-group-addon">Отправитель:</div>
+                                            <input class="form-control" type="text" name="title" value="{client/item/title}" size="30" readonly=""/>
+                                        </xsl:if>
+                                        <xsl:if test="(/page/body/module[@name='CurentUser']/container/group_id != 2)">
+                                            <div class="input-group-addon">Выберите отправителя:</div>
+                                            <select class="form-control select2" name="new_user_id" onchange="set_sender();">
+                                                <xsl:for-each select="users/item">
+                                                    <option value="{id}" phone="{phone}" sender="{name}" pay_type="{pay_type}" from="{from}" from_region="{from_region}" from_AOGUID="{from_AOGUID}" from_house="{from_house}" from_appart="{from_appart}" from_comment="{from_comment}">
+                                                        <xsl:if test="../../order/id_user = id">
+                                                            <xsl:attribute name="selected">selected</xsl:attribute>
+                                                        </xsl:if>
+                                                        <xsl:value-of select="name"/> [<xsl:value-of select="phone"/>]
+                                                    </option>
+                                                </xsl:for-each>
+                                            </select>
+                                        </xsl:if>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-sm-3 col-xs-6">
                                     <strong>Дата доставки</strong>
                                 </div>
@@ -93,34 +116,34 @@
 
                                         <div class="form-control" style="width: 30%;">
                                             <span class="order-add-title text-warning">Отправитель ФИО</span>
-                                            <input type="text" class="order-route-data" name="from_fio[]" title="Получатель" value="{order/from_fio}" required=""/>
+                                            <input type="text" class="order-route-data" name="from_fio[]" title="Отправитель" value="{order/from_fio}" required=""/>
                                         </div>
                                         <div class="form-control" style="width: 30%;">
                                             <span class="order-add-title text-warning">
                                                 Телефон отправителя
                                             </span>
-                                            <input type="text" class="order-route-data" name="from_phone[]" title="Телефон получателя" value="{order/from_phone}" required=""/>
+                                            <input type="text" class="order-route-data" name="from_phone[]" title="Телефон отправителя" value="{order/from_phone}" required=""/>
                                         </div>
                                         <div class="form-control" style="width: 20%;">
                                             <span class="order-add-title text-danger">
-                                                Можно забрать с
+                                                Забрать с
                                             </span>
                                             <xsl:call-template name="time_selector">
                                                 <xsl:with-param name="select_class">order-route-data number time_ready_from</xsl:with-param>
                                                 <xsl:with-param name="select_name">time_ready_from[]</xsl:with-param>
-                                                <xsl:with-param name="select_title">Время готовности</xsl:with-param>
+                                                <xsl:with-param name="select_title">Время забора с</xsl:with-param>
                                                 <xsl:with-param name="select_value" select="order/time_ready_from"/>
                                                 <xsl:with-param name="select_onchange">update_time_ready_from(this)</xsl:with-param>
                                             </xsl:call-template>
                                         </div>
                                         <div class="form-control" style="width: 20%;">
                                             <span class="order-add-title text-danger">
-                                                Можно забрать по
+                                                Забрать по
                                             </span>
                                             <xsl:call-template name="time_selector">
                                                 <xsl:with-param name="select_class">order-route-data number time_ready_end</xsl:with-param>
                                                 <xsl:with-param name="select_name">time_ready_end[]</xsl:with-param>
-                                                <xsl:with-param name="select_title">Время готовности</xsl:with-param>
+                                                <xsl:with-param name="select_title">Время забора по</xsl:with-param>
                                                 <xsl:with-param name="select_value" select="order/time_ready_end"/>
                                                 <xsl:with-param name="select_onchange">update_time_ready_end(this)</xsl:with-param>
                                             </xsl:call-template>
@@ -205,6 +228,9 @@
             $('select.time_ready_from, select.time_ready_end, select.to_time, select.to_time_end, select.to_time_target').on('change', function() {
                 $('#time_edited').val(1);
             });
+            if ($('#order_id').val() == ''){
+                set_sender();
+            }
         </script>
     </xsl:template>
     <xsl:template name="adresses">

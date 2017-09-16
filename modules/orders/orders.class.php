@@ -143,10 +143,18 @@ class ordersModel extends module_model {
 		return $this->get_assoc_array($sql);
 	}
     public function getUsers($uid) {
-        $sql = "SELECT id, name, title, pay_type
+        $sql = "SELECT u.id, u.name, u.phone, u.title, u.pay_type, a.`from`, a.from_region, a.from_AOGUID, a.from_house, a.from_appart, a.from_comment
                 FROM users u
-                 LEFT JOIN groups_user g ON u.id = g.user_id
-                 WHERE u.isban < 1 and (g.group_id = 2 or u.id = $uid)";
+                LEFT JOIN groups_user g ON u.id = g.user_id
+                LEFT JOIN  
+                  (SELECT id_user, `from`, from_region, from_AOGUID, from_house, from_appart, from_comment, COUNT(id)
+                  FROM orders
+                  WHERE `from` IS NOT NULL
+                  GROUP BY id_user, `from`, from_region, from_AOGUID, from_house, from_appart
+                  ORDER BY COUNT(id) DESC
+                  LIMIT 1) AS a ON a.id_user = u.id
+                WHERE u.isban < 1 and (g.group_id = 2 or u.id = $uid)
+                 AND (name <> '' OR phone <> '')";
         return $this->get_assoc_array($sql);
     }
     public function getUserParams($uid) {

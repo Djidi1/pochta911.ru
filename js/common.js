@@ -497,6 +497,7 @@ function test_time_routes_each(route_row){
     var ready_3_period = $('#ready_3_period').val();
     var ready_today_period = $('#ready_today_period').val();
     var period_period = $('#period_period').val();
+    var period_from_period = $('#period_from_period').val();
 
 
     // Если время доставки меньше текущего, то заказ на следующий день (проверяю по второму времени)
@@ -510,7 +511,7 @@ function test_time_routes_each(route_row){
 
     // (0) Время между "забрать по" и "доставить с" не может быть больше 120 минут (2х часов), если стоит бесконечность по умолчанию то эта проверка не нужна
     if (round00(tt - tt_ready_end) > ready_3_period && time_ready_end != '-') {
-        errors += '<li>Время начала доставки не может быть больше '+ready_3_period+':00 от времени "забрать по".</li><br/>';
+        errors += '<li>Значение "Доставить с" не может быть более '+ready_3_period+' ч. от времени "Забрать по".</li><br/>';
         no_error = false;
     }
 
@@ -530,13 +531,13 @@ function test_time_routes_each(route_row){
     if (tt_ready_from >= ready_1_from && tt_ready_from <= ready_1_to){
         // проверка от готовности до начала доставки - 2 час
         if (round00(tt_end - tt_ready_from) < ready_1_period){
-            errors += '<li>Значение "Доставить по" не может быть менее '+ready_1_period+' ч. от значения "Можно забрать с".</li><br/>';
+            errors += '<li>Значение "Доставить по" не может быть менее '+ready_1_period+' ч. от значения "Забрать с".</li><br/>';
             no_error = false;
         }
     } else {
         // (4) проверка от готовности (2,5 часа) - 18.05.2017 - заменил на 3 часа
         if (round00(tt_end - tt_ready_from) < ready_2_period) {
-            errors += '<li>Значение "Доставить по" не может быть менее '+ready_2_period+' ч. от значения "Можно забрать с".</li><br/>';
+            errors += '<li>Значение "Доставить по" не может быть менее '+ready_2_period+' ч. от значения "Забрать с".</li><br/>';
             no_error = false;
         }
         // (5) Проверка от времени заказа
@@ -545,12 +546,17 @@ function test_time_routes_each(route_row){
             no_error = false;
         }
     }
-    // (6) Проверка от и до не менее 40 мин, если только не к точному времени
+    // (6) Проверка доставки от и до не менее 40 мин, если только не к точному времени
     if (round00(tt_end_2 - tt_2) < (period_period / 60) && !$('.target').prop('checked')){
         errors += '<li>Интервал между значениями "Доставить с" и "Доставить по" не может быть менее '+period_period+' мин.</li><br/>';
         no_error = false;
     }
 
+    // (7) Проверка забора от и до не менее 120 мин, если только не до бесконечности
+    if (round00(tt_ready_end - tt_ready_from) < (period_from_period / 60) && time_ready_end != '-'){
+        errors += '<li>Интервал между значениями "Забрать с" и "Забрать по" не может быть менее '+period_from_period+' мин.</li><br/>';
+        no_error = false;
+    }
 
 
     // Только для новых заказов
@@ -659,6 +665,34 @@ function timestampToTime(){
     var his = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
     $('span.his_time_now').html(his);
     return hours + ':' + minutes.substr(-2);
+}
+
+function set_sender(obj) {
+// <option value="83" phone="+79215754387" sender="Иванов Иван" pay_type="1" from="" from_region="" from_aoguid="" from_house="" from_appart="" from_comment="">Иванов Иван [+79215754387]
+    var opt = $("SELECT[name='new_user_id']").find('option:selected');
+    var pay_type = $(opt).attr('pay_type');
+    var sender = $(opt).attr('sender');
+    var phone = $(opt).attr('phone');
+    var from = $(opt).attr('from');
+    var from_region = $(opt).attr('from_region');
+    var from_aoguid = $(opt).attr('from_aoguid');
+    var from_house = $(opt).attr('from_house');
+    var from_appart = $(opt).attr('from_appart');
+    var from_comment = $(opt).attr('from_comment');
+
+    $("input[name='from[]']").val(from);
+    $("input[name='from_AOGUID[]']").val(from_aoguid);
+    $("input[name='from_region[]']").val(from_region);
+    $("SELECT[name='from_house[]']")
+        .html('<option>'+from_house+'</option>')
+        .attr('aoguid',from_aoguid)
+        .val(from_house);
+    $("input[name='from_appart[]']").val(from_appart);
+    $("input[name='from_fio[]']").val(sender);
+    $("input[name='from_phone[]']").val(phone);
+    $("textarea[name='from_comment[]']").val(from_comment);
+    $("select.pay_type").val(pay_type);
+    getHouseNumbers();
 }
 
 function add_data_table(obj, type){

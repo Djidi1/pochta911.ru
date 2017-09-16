@@ -123,16 +123,21 @@ class titleProcess extends module_process {
             $name = $this->Vals->getVal ( 'name', 'POST', 'string' );
             $phone = $this->Vals->getVal ( 'phone', 'POST', 'string' );
             $desc = $this->Vals->getVal ( 'desc', 'POST', 'string' );
-            $pin_code = mt_rand(1000, 9999);
-            $sms_id = $this->send_sms($phone,$pin_code);
-            if (!$sms_id) {
-                echo "<div class='alert alert-danger'>Ошибка отправки СМС.</div>";
-            } else {
-                $result = $this->nModel->createUser($name, $phone, $desc, $pin_code, $sms_id);
-                if (!$result) {
-                    echo "<div class='alert alert-warning'>Пользователь с таким телефоном уже зарегестрирован.</div>";
+            $name_exist = $this->nModel->getUserName($phone);
+            if ($name_exist) {
+                echo "<div class='alert alert-warning'>Пользователь с таким телефоном уже зарегестрирован.<br>Воспользуйтесь формой восстановления пароля.</div>";
+            }else {
+                $pin_code = mt_rand(1000, 9999);
+                $sms_id = $this->send_sms($phone, $pin_code);
+                if (!$sms_id) {
+                    echo "<div class='alert alert-danger'>Ошибка отправки СМС.</div>";
+                } else {
+                    $result = $this->nModel->createUser($name, $phone, $desc, $pin_code, $sms_id);
+                    if (!$result) {
+                        echo "<div class='alert alert-warning'>Пользователь с таким телефоном уже зарегестрирован.</div>";
+                    }
+                    echo "<div class='alert alert-success'>$name, спасибо за регистрацию. Временный пароль для входа отправлен на номер: $phone </div><!-- $pin_code -->";
                 }
-                echo "<div class='alert alert-success'>$name, спасибо за регистрацию. Временный пароль для входа отправлен на номер: $phone </div><!-- $pin_code -->";
             }
             exit();
         }		/********************************************************************************/
@@ -180,7 +185,7 @@ class titleProcess extends module_process {
         $sms = $smsru->send_one($data); // Отправка сообщения и возврат данных в переменную
 
         $sms_json = json_encode($sms);
-        $this->nModel->saveSMSlog ($phone, $sms->sms_id, $sms->status_code, $sms->status_text, $sms_json);
+        $this->nModel->saveSMSlog ($phone, $sms->sms_id, $sms->status_code, $sms->status_text || 'OK', $sms_json);
         if ($sms->status == "OK") { // Запрос выполнен успешно
 //            echo "<div class='alert alert-success'>Сообщение на ваш телефон отправлено успешно.</div>";
 //            echo "ID сообщения: $sms->sms_id.";
