@@ -147,7 +147,7 @@ class TUser extends database
             $sql2 = 'INSERT INTO logins (id_user,ip,referer,browser,screen_size,os)
      VALUES
            (\'' . $row ["id"] . '\', \'' . $_SERVER ["REMOTE_ADDR"] . '\', 
-            \'' . $_SERVER ["HTTP_REFERER"] . '\', \'' . $_SERVER ["HTTP_USER_AGENT"] . '\',
+            \'' . @$_SERVER ["HTTP_REFERER"] . '\', \'' . $_SERVER ["HTTP_USER_AGENT"] . '\',
             \'\', \'' . PHP_OS . '\')';
             $this->query($sql2);
 

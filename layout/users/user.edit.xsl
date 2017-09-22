@@ -10,7 +10,8 @@
         </xsl:if>
         <form action="/admin/userUpdate-{user/user_id}/" method="post" name="main_form" autocomplete="off">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-3"/>
+                <div class="col-md-6 col-xs-12">
 
                     <div class="panel panel-success">
                         <div class="panel-heading">
@@ -191,35 +192,36 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="panel panel-info">
-                        <div class="panel-heading">
-                            <strong>Адреса магазинов</strong>
-                        </div>
-                        <div class="panel-body">
-                            <xsl:for-each select="address/item">
-                                <xsl:call-template name="address_row"/>
-                            </xsl:for-each>
-                            <xsl:if test="count(address/item) = 0">
-                                <xsl:call-template name="address_row"/>
-                            </xsl:if>
-                        </div>
-                    </div>
 
-                    <div class="panel panel-warning">
-                        <div class="panel-heading">
-                            <strong>Оплата</strong>
-                        </div>
-                        <div class="panel-body">
-                            <xsl:for-each select="cards/item">
-                                <xsl:call-template name="pay_row"/>
-                            </xsl:for-each>
-                            <xsl:if test="count(cards/item) = 0">
-                                <xsl:call-template name="pay_row"/>
-                            </xsl:if>
-                        </div>
-                    </div>
-                </div>
+                <!--<div class="col-md-6">-->
+                    <!--<div class="panel panel-info">-->
+                        <!--<div class="panel-heading">-->
+                            <!--<strong>Адреса магазинов</strong>-->
+                        <!--</div>-->
+                        <!--<div class="panel-body">-->
+                            <!--<xsl:for-each select="address/item">-->
+                                <!--<xsl:call-template name="address_row"/>-->
+                            <!--</xsl:for-each>-->
+                            <!--<xsl:if test="count(address/item) = 0">-->
+                                <!--<xsl:call-template name="address_row"/>-->
+                            <!--</xsl:if>-->
+                        <!--</div>-->
+                    <!--</div>-->
+
+                    <!--<div class="panel panel-warning">-->
+                        <!--<div class="panel-heading">-->
+                            <!--<strong>Оплата</strong>-->
+                        <!--</div>-->
+                        <!--<div class="panel-body">-->
+                            <!--<xsl:for-each select="cards/item">-->
+                                <!--<xsl:call-template name="pay_row"/>-->
+                            <!--</xsl:for-each>-->
+                            <!--<xsl:if test="count(cards/item) = 0">-->
+                                <!--<xsl:call-template name="pay_row"/>-->
+                            <!--</xsl:if>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
             </div>
             <div style="text-align: center">
                 <input class="btn btn-success" type="submit" value="сохранить" name="submit"/>

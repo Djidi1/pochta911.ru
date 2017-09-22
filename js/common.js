@@ -160,18 +160,6 @@ function autoc_spb_streets(){
         });
     });
     getHouseNumbers();
-    /*
-    var saved_data = localStorage.getItem('spb_street_data');
-    if (typeof saved_data == 'undefined' || saved_data == null || saved_data == '' ) {
-        $.getJSON('/orders/get_data-spbStreets', function(spb_street_data){
-            localStorage.setItem('spb_street_data', JSON.stringify(spb_street_data));
-            $(".spb-streets").typeahead({ source: spb_street_data, hint: true });
-        },'json');
-    }else{
-        var localData = JSON.parse(localStorage.getItem('spb_street_data'));
-        $(".spb-streets").typeahead({ source: localData, hint: true });
-    }
-    */
 }
 
 function getHouseNumbers() {
@@ -208,50 +196,115 @@ function getHouseNumbers() {
                 }
             }
         });
-        /*
-        $.ajax({
-            url: '/service/kladr.php',
-            type: 'POST',
-            data: 'type=house&house=&AOGUID=' + AOGUID,
-            dataType: 'JSON',
-            async: true,
-            timeout: 5000,
-            success: function (data) {
-                $this.html('');
-                $.each(data, function (idx, obj) {
-                    $this.append('<option value="' + obj.name + '">' + obj.name + '</option>');
-                });
-                $this.trigger("liszt:updated");
-                $this.select2().css('width','100%');
+    });
+}
+
+function add_order(){
+    var preord = $('.pre_order');
+    // Расширяем блок с формой
+    $(preord).parent().attr('class','col-sm-8');
+    $('.map-form').parent().parent().attr('class','col-sm-4');
+
+    // Берем значения из предварительного заказа
+    var from = $(preord).find('input[name="from[]"]').val();
+    var from_region = $(preord).find('input[name="from[]"]').attr('region');
+    var from_house = $(preord).find('select[name="from_house[]"]').val() || '';
+    var from_aoguid = $(preord).find('select[name="from_house[]"]').attr('aoguid');
+    var to = $(preord).find('input[name="to[]"]').val();
+    var to_region = $(preord).find('input[name="to[]"]').attr('region');
+    var to_house = $(preord).find('select[name="to_house[]"]').val() || '';
+    var to_aoguid = $(preord).find('select[name="to_house[]"]').attr('aoguid');
+    // Удаляем блок предзаказа
+    $(preord).remove();
+    // Скрываем дополнительный блок
+    $('.additional_block').hide();
+
+    var ord = $('.order_form');
+    // Отображаем блок заказа
+    $(ord).show();
+    // Переносим данные в заказ
+    $(ord).find('input[name="from[]"]').val(from);
+    $(ord).find("input[name='from_AOGUID[]']").val(from_aoguid);
+    $(ord).find("input[name='from_region[]']").val(from_region);
+    $(ord).find("SELECT[name='from_house[]']")
+        .html('<option>'+from_house+'</option>')
+        .attr('aoguid',from_aoguid)
+        .val(from_house);
+    $(ord).find('input[name="to[]"]').val(to);
+    $(ord).find("input[name='to_AOGUID[]']").val(to_aoguid);
+    $(ord).find("input[name='to_region[]']").val(to_region);
+    $(ord).find("SELECT[name='to_house[]']")
+        .html('<option>'+to_house+'</option>')
+        .attr('aoguid',to_aoguid)
+        .val(to_house);
+
+    add_phone_masks();
+    getHouseNumbers();
+}
+
+function check_phone(order_correct) {
+    var from_phone = $('[name="from_phone[]"]').val();
+    var from_fio = $('[name="from_fio[]"]').val();
+    if (from_phone != '8' || from_phone != ''){
+        var dialog = bootbox.dialog({
+            title: "Подтверждение заказа",
+            message: '<div class="alert alert-success">Перед сохранением заказа вам необходимо подтвердить ваш номер телефона.</div><br /> ' +
+            '<label>Ваше имя</label> <input class="form-control user-name" value="'+from_fio+'"> <br>' +
+            '<label>Телефон</label> <input class="form-control phone-number" value="'+from_phone+'">',
+            buttons: {
+                cancel: {
+                    label: '<i class="fa fa-times"></i> Вернуться',
+                    className: 'btn-danger'
+                },
+                confirm: {
+                    label: '<i class="fa fa-check"></i> Получить код',
+                    className: 'btn-success',
+                    callback: function () {
+                        var fio = $(dialog).find('.user-name').val();
+                        var phone = $(dialog).find('.phone-number').val();
+
+                        if (phone != '') {
+                            $.post("/title/ConfirmPhone-1/", {phone:phone, name:fio},  function(id_user) {
+                                if (id_user == 1) {
+                                    bootbox.alert('<div class="alert alert-warning">Пользователь с таким телефоном уже зарегестрирован.<br>Если вы забыли пароль, нажмите <span class="btn-link text-info pointer" onclick="recover_password(\''+from_phone+'\')">восстановить</span></div>');
+                                } else if (id_user == 2) {
+                                    bootbox.alert('<div class="alert alert-danger">Ошибка отправки СМС.</div>');
+                                } else if (id_user > 2) {
+                                    $('#order_edit').find('.id_user').val(id_user);
+                                    bootbox.prompt({
+                                        title: "Введите код подтверждения:",
+                                        buttons: {
+                                            cancel: {
+                                                label: '<i class="fa fa-times"></i> Вернуться'
+                                            },
+                                            confirm: {
+                                                label: '<i class="fa fa-check"></i> Отправить'
+                                            }
+                                        },
+                                        callback: function(code) {
+                                            $.post("/title/CheckCode-1/", {phone:from_phone, code: code}, function (result) {
+                                                if (result > 0 && order_correct === 1) {
+                                                    document.getElementById("order_edit").submit();
+                                                } else {
+                                                    bootbox.alert('Вы ввели не верный код проверки.');
+                                                }
+                                            });
+                                        }
+                                    });
+                                }else{
+                                    bootbox.alert("<div class='alert alert-warning'>Ошибка подтверждения телефона.<br>" +
+                                        "Если данная ошибка повторяется, сообщите нам об этом по телефону.</div>");
+                                }
+                            });
+                        }
+                    }
+                }
             }
         });
-        */
-        /*
-         $this.typeahead({
-         source: function (query, process) {
-         $.ajax({
-         url: '/service/kladr.php',
-         type: 'POST',
-         data: 'type=house&house=' + query + '&AOGUID=' + AOGUID,
-         dataType: 'JSON',
-         async: true,
-         timeout: 5000,
-         success: function (data) {
-         source_data = data;
-         process(data);
-         }
-         });
-         },
-         minLength: 0,
-         items: 'all'
-         }).blur(function () {
-         console.log(source_data);
-         if(source_data.includes($(this).val())) {
-         console.log('Error : element not in list!');
-         }
-         });
-         */
-    });
+        dialog.bind('shown.bs.modal', function(){
+            add_phone_masks();
+        });
+    }
 }
 
 function updUserStores(obj){
@@ -339,78 +392,87 @@ function round00(x){
 function test_time_routes_add() {
     var from_block = $('DIV.from-block').get(0);
     $('.to_time').removeAttr('disabled');
-    var this_ready_from = $(from_block).find('.time_ready_from').val();
-    var this_ready_end = $(from_block).find('.time_ready_end').val();
-    $('div.routes-block').each(function (index) {
-        var next_route = $('div.routes-block').eq(index+1);
-        var this_to_time = $(this).find('.to_time').val();
-        var this_to_time_end = $(this).find('.to_time_end').val();
-        var this_to_time_target = $(this).find('.to_time_target').val();
-        var next_to_time = $(next_route).find('.to_time').val();
-        // var next_to_time_end = $(next_route).find('.to_time_end').val();
-        // Текущее время
-        var m = moment(new Date());
-        var time_now_string = m.hour() + ':' + round5(m.minute());
+    var order_date = $('input[name=date]').val();
+    if (order_date == ''){
+        bootbox.alert('Укажите дату доставки.', function () {
+            focus_field($('input[name=date]'), 1);
+        });
+    }else {
+        var this_ready_from = $(from_block).find('.time_ready_from').val();
+        var this_ready_end = $(from_block).find('.time_ready_end').val();
+        $('div.routes-block').each(function (index) {
+            var next_route = $('div.routes-block').eq(index + 1);
+            var this_to_time = $(this).find('.to_time').val();
+            var this_to_time_end = $(this).find('.to_time_end').val();
+            var this_to_time_target = $(this).find('.to_time_target').val();
+            var next_to_time = $(next_route).find('.to_time').val();
+            // var next_to_time_end = $(next_route).find('.to_time_end').val();
+            // Текущее время
+            var m = moment(new Date());
+            var time_now_string = m.hour() + ':' + round5(m.minute());
 
-        // Если текущее время меньше времени готовности
-        if (TimeToFloat(this_ready_from) < TimeToFloat(time_now_string) && moment($('input[name=date]').val(), 'DD.MM.YYYY').isSame(Date.now(), 'day')) {
-            $(from_block).find('.time_ready_from').val(time_now_string);
-            bootbox.alert('Время готовности не может быть меньше текущего времени.');
-        }
-        // Если время готовности ПО меньше времени готовности С
-        else if (this_ready_end != '-' && TimeToFloat(this_ready_end) < TimeToFloat(this_ready_from)) {
-            $(from_block).find('.time_ready_end').val(this_ready_from);
-            test_time_routes_add();
-        }
-        // Если время готовности меньше времени С
-        else if (this_ready_end != '-' &&
-            (TimeToFloat(this_ready_end) > TimeToFloat(this_to_time) ||
-                TimeToFloat(this_ready_end) > TimeToFloat(this_to_time_target))) {
-            $(this).find('.to_time').val(this_ready_end);
-            $(this).find('.to_time_target').val(this_ready_end);
-            test_time_routes_add();
-        }
-        // Если время готовности меньше времени С
-        else if (this_ready_end == '-' &&
-            (TimeToFloat(this_ready_from) > TimeToFloat(this_to_time) ||
-                TimeToFloat(this_ready_from) > TimeToFloat(this_to_time_target))) {
-            $(this).find('.to_time').val(this_ready_from);
-            $(this).find('.to_time_target').val(this_ready_from);
-            test_time_routes_add();
-        }
-        // Если время С меньше времени ПО
-        else if (TimeToFloat(this_to_time) > TimeToFloat(this_to_time_end)) {
-            $(this).find('.to_time_end').val(this_to_time);
-            test_time_routes_add();
-        }
-
-        if (typeof next_to_time != 'undefined') {
-            // а. времня начало доставки следующего адреса, меньше или равно времени окончания доставки предыдущего.
-            if (TimeToFloat(next_to_time) > TimeToFloat(this_to_time_end)){
-                $(next_route).find('.to_time').val(this_to_time_end);
-                // блокируем возможность выбор другого времени
-                // disable_next($(next_route).find('.to_time'), this_to_time_end);
+            // Если текущее время меньше времени готовности
+            if (TimeToFloat(this_ready_from) < TimeToFloat(time_now_string) && moment(order_date, 'DD.MM.YYYY').isSame(Date.now(), 'day')) {
+                $(from_block).find('.time_ready_from').val(time_now_string);
+                bootbox.alert('Время готовности не может быть меньше текущего времени.', function () {
+                    focus_field($(from_block).find('.time_ready_from'));
+                });
             }
-            // б. Если от начала доставки первого адреса до конца доставки первого адреса более 60 минут , то программа внутри у себя подставляет что там промежуток в 60 минут, например (с 14,00 до 18,00 , программа в уме держит что там с 14,00 до 15,00)
-
-            // в. время начала следующего заказа , больше или равно времени начало предыдущего адреса но если больше то не более чем на 30 минут.
-            if ((TimeToFloat(next_to_time) < TimeToFloat(this_to_time))
-                || round00((TimeToFloat(next_to_time) - TimeToFloat(this_to_time)) > 0.5)){
-                $(next_route).find('.to_time').val(this_to_time);
+            // Если время готовности ПО меньше времени готовности С
+            else if (this_ready_end != '-' && TimeToFloat(this_ready_end) < TimeToFloat(this_ready_from)) {
+                $(from_block).find('.time_ready_end').val(this_ready_from);
+                test_time_routes_add();
             }
-            // console.log('this_to_time:' + this_to_time);
-            // console.log('this_to_time_end:' + this_to_time_end);
-            // console.log('next_to_time:' + next_to_time);
-            // console.log('next_to_time_end:' + next_to_time_end);
-        }
-    });
+            // Если время готовности меньше времени С
+            else if (this_ready_from != '-' &&
+                (TimeToFloat(this_ready_from) > TimeToFloat(this_to_time) ||
+                    TimeToFloat(this_ready_from) > TimeToFloat(this_to_time_target))) {
+                $(this).find('.to_time').val(this_ready_from);
+                $(this).find('.to_time_target').val(this_ready_from);
+                test_time_routes_add();
+            }
+            // Если время готовности меньше времени С
+            else if (this_ready_end == '-' &&
+                (TimeToFloat(this_ready_from) > TimeToFloat(this_to_time) ||
+                    TimeToFloat(this_ready_from) > TimeToFloat(this_to_time_target))) {
+                $(this).find('.to_time').val(this_ready_from);
+                $(this).find('.to_time_target').val(this_ready_from);
+                test_time_routes_add();
+            }
+            // Если время С меньше времени ПО
+            else if (TimeToFloat(this_to_time) > TimeToFloat(this_to_time_end)) {
+                $(this).find('.to_time_end').val(this_to_time);
+                test_time_routes_add();
+            }
+
+            if (typeof next_to_time != 'undefined') {
+                // а. времня начало доставки следующего адреса, меньше или равно времени окончания доставки предыдущего.
+                if (TimeToFloat(next_to_time) > TimeToFloat(this_to_time_end)) {
+                    $(next_route).find('.to_time').val(this_to_time_end);
+                    // блокируем возможность выбор другого времени
+                    // disable_next($(next_route).find('.to_time'), this_to_time_end);
+                }
+                // б. Если от начала доставки первого адреса до конца доставки первого адреса более 60 минут , то программа внутри у себя подставляет что там промежуток в 60 минут, например (с 14,00 до 18,00 , программа в уме держит что там с 14,00 до 15,00)
+
+                // в. время начала следующего заказа , больше или равно времени начало предыдущего адреса но если больше то не более чем на 30 минут.
+                if ((TimeToFloat(next_to_time) < TimeToFloat(this_to_time))
+                    || round00((TimeToFloat(next_to_time) - TimeToFloat(this_to_time)) > 0.5)) {
+                    $(next_route).find('.to_time').val(this_to_time);
+                }
+                // console.log('this_to_time:' + this_to_time);
+                // console.log('this_to_time_end:' + this_to_time_end);
+                // console.log('next_to_time:' + next_to_time);
+                // console.log('next_to_time_end:' + next_to_time_end);
+            }
+        });
+    }
 }
 
 function test_time_routes(obj){
     var route_row = $(obj).parent().parent();
     test_time_routes_each(route_row);
 }
-function test_time_all_routes(){
+function test_time_all_routes(from_main){
     // var order_edited = $('#order_edited').val();
     var time_edited = $('#time_edited').val();
     var order_id = $('#order_id').val();
@@ -424,14 +486,17 @@ function test_time_all_routes(){
         var $routes_block = $('div.routes-block');
 
         var invalid = false;
-        $routes_block.find("select:required, input:required", this).each(function () {
+        var err_field;
+        $('#order_edit').find("select:required, input:required", this).each(function () {
             if ($(this).val().trim() == "") {
                 invalid = true;
-                $(this).focus();
+                err_field = this;
             }
         });
         if (invalid) {
-            bootbox.alert('Заполните, пожалуйста, все обязательные поля формы заказа.');
+            bootbox.alert('Заполните, пожалуйста, все обязательные поля формы заказа.', function () {
+                focus_field(err_field);
+            });
             return false;
         }
 
@@ -455,32 +520,31 @@ function test_time_all_routes(){
             }
         });
         $routes_block.each(function () {
-            test_time_routes_each(this);
+            test_time_routes_each(this, from_main);
         });
     }else{
-        document.getElementById("order_edit").submit();
+        if (from_main === 1) {
+            check_phone(1);
+        }else{
+            document.getElementById("order_edit").submit();
+        }
     }
 }
 
-function test_time_routes_each(route_row){
+function test_time_routes_each(route_row, from_main){
     var from_block = $('DIV.from-block').get(0);
     var time_ready_from = $(from_block).find('.time_ready_from').val();
     var time_ready_end = $(from_block).find('.time_ready_end').val();
     var to_time = $(route_row).find('.to_time').val();
     var to_time_end = $(route_row).find('.to_time_end').val();
-/*
-     iLog('to_time_ready: '+TimeToFloat(to_time_ready));
-     // iLog('to_time: '+TimeToFloat(to_time));
-     iLog('to_time_end: '+TimeToFloat(to_time_end));
-     iLog('time_now: '+TimeToFloat(timestampToTime()));
-*/
+
     var tt_ready_from = TimeToFloat(time_ready_from);
     var tt_ready_end = TimeToFloat(time_ready_end);
     var tt = TimeToFloat(to_time);
     var tt_end = TimeToFloat(to_time_end);
     var t_now = TimeToFloat(timestampToTime());
 
-    var today = $('.today-date').val();
+    var today = timestampToDMY();
     var tomarrow = moment(today, 'DD.MM.YYYY').add(1, 'days').format('L');
     var $date = $('input[name=date]');
     var set_date = $date.val();
@@ -512,17 +576,21 @@ function test_time_routes_each(route_row){
     // (0) Время между "забрать по" и "доставить с" не может быть больше 120 минут (2х часов), если стоит бесконечность по умолчанию то эта проверка не нужна
     if (round00(tt - tt_ready_end) > ready_3_period && time_ready_end != '-') {
         errors += '<li>Значение "Доставить с" не может быть более '+ready_3_period+' ч. от времени "Забрать по".</li><br/>';
+        focus_field($(from_block).find('.time_ready_end'));
+        focus_field($(route_row).find('.to_time'));
         no_error = false;
     }
 
     // (1) Заказы вечером на завтра запрещены на утро (проверка по крайнему времени доставки)
     if ( set_date == tomarrow && t_now > period_tomarrow_to && tt_end < period_tomarrow_from ){
         errors += '<li>Заказ с доставкой в период с 8:00 до '+period_tomarrow_from+':00 можно оставить не позднее '+period_tomarrow_to+':00.</li><br/>';
+        focus_field($(route_row).find('.to_time_end'));
         no_error = false;
     }
     // (2) Заказы утром на сегодняшнее утро запрещены  (проверка по крайнему времени доставки)
     if ( set_date == today && t_now < period_today_to && tt_end < period_today_from ){
         errors += '<li>Заказ с доставкой в период с 8:00 до '+period_today_from+':00 можно оставить не раньше '+period_today_to+':00.</li><br/>';
+        focus_field($(route_row).find('.to_time_end'));
         no_error = false;
     }
 
@@ -532,29 +600,38 @@ function test_time_routes_each(route_row){
         // проверка от готовности до начала доставки - 2 час
         if (round00(tt_end - tt_ready_from) < ready_1_period){
             errors += '<li>Значение "Доставить по" не может быть менее '+ready_1_period+' ч. от значения "Забрать с".</li><br/>';
+            focus_field($(from_block).find('.time_ready_from'));
+            focus_field($(route_row).find('.to_time_end'));
             no_error = false;
         }
     } else {
         // (4) проверка от готовности (2,5 часа) - 18.05.2017 - заменил на 3 часа
         if (round00(tt_end - tt_ready_from) < ready_2_period) {
             errors += '<li>Значение "Доставить по" не может быть менее '+ready_2_period+' ч. от значения "Забрать с".</li><br/>';
+            focus_field($(from_block).find('.time_ready_from'));
+            focus_field($(route_row).find('.to_time_end'));
             no_error = false;
         }
         // (5) Проверка от времени заказа
         if (set_date == today && round00(tt_end_2 - t_now) < ready_today_period ){
             errors += '<li>Значение "Доставить по" не может быть менее '+ready_today_period+' ч. от текущего времени.</li><br/>';
+            focus_field($(route_row).find('.to_time_end'));
             no_error = false;
         }
     }
     // (6) Проверка доставки от и до не менее 40 мин, если только не к точному времени
     if (round00(tt_end_2 - tt_2) < (period_period / 60) && !$('.target').prop('checked')){
         errors += '<li>Интервал между значениями "Доставить с" и "Доставить по" не может быть менее '+period_period+' мин.</li><br/>';
+        focus_field($(route_row).find('.to_time'));
+        focus_field($(route_row).find('.to_time_end'));
         no_error = false;
     }
 
     // (7) Проверка забора от и до не менее 120 мин, если только не до бесконечности
     if (round00(tt_ready_end - tt_ready_from) < (period_from_period / 60) && time_ready_end != '-'){
         errors += '<li>Интервал между значениями "Забрать с" и "Забрать по" не может быть менее '+period_from_period+' мин.</li><br/>';
+        focus_field($(from_block).find('.time_ready_from'));
+        focus_field($(from_block).find('.time_ready_end'));
         no_error = false;
     }
 
@@ -566,29 +643,12 @@ function test_time_routes_each(route_row){
             $date.val(moment($date.val(), 'DD.MM.YYYY').add(1, 'days').format('L'));
         }
     }
-/*
-    // проверка обязательный полей
-    var fail = false;
-    var fail_log = '';
-    $( '#form_id' ).find( 'select, textarea, input' ).each(function(){
-        if( ! $( this ).prop( 'required' )){
-
-        } else {
-            if ( ! $( this ).val() ) {
-                fail = true;
-                var name = $( this ).attr( 'title' );
-                fail_log += "Поле '" + name + "' должно быть заполнено. \n";
-            }
-
-        }
-    });
-*/
 
     // Группа пользователя
     var group_id = $('BODY').attr('group_id');
 
     // Если клиент, то пусть исправляет
-    if (group_id == 2) {
+    if (group_id == 2 || typeof group_id == 'undefined') {
         // Блокировка при ошибках во времени
         if (!no_error) {
             $('input.btn-submit').prop('disabled', true);
@@ -627,18 +687,13 @@ function test_time_routes_each(route_row){
             $('input.btn-submit').prop('disabled', false);
         }
     }
-/*
-    // Блокировка по обязательным полям
-    if ( fail ) {
-        $('input.btn-submit').prop('disabled', true);
-        bootbox.alert( fail_log, function(){ $('input.btn-submit').prop('disabled', false); } );
-        // Если нет других ошибок, то блокируем данной проверкой.
-        no_error = (no_error)?false:fail;
-    }
-*/
 
     if (no_error) {
-        document.getElementById("order_edit").submit()
+        if (from_main === 1) {
+            check_phone(1);
+        }else{
+            document.getElementById("order_edit").submit();
+        }
     }else{
         return no_error;
     }
@@ -667,7 +722,16 @@ function timestampToTime(){
     return hours + ':' + minutes.substr(-2);
 }
 
-function set_sender(obj) {
+function timestampToDMY(){
+    var unix_timestamp = $('#time_now').val();
+    var date = new Date(unix_timestamp*1000);
+    var day = "0" + date.getDate();
+    var month = "0" + (date.getMonth()+1);
+    var year = date.getFullYear();
+    return day.substr(-2) + '.' + month.substr(-2) + '.' + year;
+}
+
+function set_sender() {
 // <option value="83" phone="+79215754387" sender="Иванов Иван" pay_type="1" from="" from_region="" from_aoguid="" from_house="" from_appart="" from_comment="">Иванов Иван [+79215754387]
     var opt = $("SELECT[name='new_user_id']").find('option:selected');
     var pay_type = $(opt).attr('pay_type');
@@ -676,7 +740,7 @@ function set_sender(obj) {
     var from = $(opt).attr('from');
     var from_region = $(opt).attr('from_region');
     var from_aoguid = $(opt).attr('from_aoguid');
-    var from_house = $(opt).attr('from_house');
+    var from_house = $(opt).attr('from_house') || '';
     var from_appart = $(opt).attr('from_appart');
     var from_comment = $(opt).attr('from_comment');
 
@@ -829,41 +893,16 @@ function chg_courier(order_id){
     });
 }
 
-function add_phone_masks() {
-    var $phone;
-    // макси для ввода телефонов
-    $('.phone-number')
-        .keydown(function (e) {
-            var key = e.which || e.charCode || e.keyCode || 0;
-            $phone = $(this);
-            // Don't let them remove the starting '('
-            if ($phone.val().length === 1 && (key === 8 || key === 46)) {
-                $phone.val('8');
-                return false;
-            }
-
-            // Allow numeric (and tab, backspace, delete) keys only
-            return (key == 8 ||
-            key == 9 ||
-            key == 46 ||
-            (key >= 48 && key <= 57) ||
-            (key >= 96 && key <= 105));
-        })
-        .bind('focus click', function () {
-            $phone = $(this);
-
-            if ($phone.val().length === 0) {
-                $phone.val('8');
-            }
-            else {
-                var val = $phone.val();
-                $phone.val('').val(val); // Ensure cursor remains at the end
-            }
-        })
-        .blur(function () {
-            $phone = $(this);
-            if ($phone.val() === '8') {
-                $phone.val('');
-            }
+function focus_field(field, dont_style){
+    if (dont_style !== 1) {
+        $(field).attr('style', 'border:2px solid red;');
+        $(field).change(function () {
+            $(this).attr('style', '');
         });
+    }
+    $(field).focus();
+}
+
+function add_phone_masks() {
+    $('.phone-number').mask('+7 999 999-99-99',{placeholder:"+7 ___ ___-__-__"});
 }

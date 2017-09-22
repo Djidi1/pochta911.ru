@@ -9,13 +9,13 @@
                 <meta name="viewport" content="width=device-width, initial-scale=1"/>
             </xsl:if>
             <base href="."/>
-            <title>Доставка цветов</title>
+            <title>Скорая Почта - мы экономим ваше время</title>
             <xsl:call-template name="css_js_header"/>
         </head>
     </xsl:template>
     <xsl:template name="main_headWrap">
         <div id="header">
-            <nav class="navbar navbar-default">
+            <nav class="navbar navbar-inverse">
                 <div class="container-fluid">
                     <!-- Brand and toggle get grouped for better mobile display -->
                     <div class="navbar-header">
@@ -26,9 +26,9 @@
                             <span class="icon-bar"/>
                             <span class="icon-bar"/>
                         </button>
-                        <a class="navbar-brand" href="/title/" title="Цветочное такси">
+                        <a class="navbar-brand" href="/title/" title="Скорая Почта">
                             <img src="./images/logo.png?v3" alt="Logo"/>
-                            <span class="header1" style="display:none;">Цветочное такси</span>
+                            <span class="header1" style="display:none;"/>
                         </a>
                     </div>
 
@@ -90,16 +90,19 @@
                                     select="//page/body/module[@name = 'CurentUser']/container[@module = 'login' and position() = 1]"/>
                             <!--				<div xmlns="" class="form"><div class="poping_links"><a href="/admin/" style="padding-right: 0px;">Менеджерам</a></div></div>-->
                         </div>
+                        <div class="phone-in-header phone">
+                            <span class="city-code">(812)</span> 242-80-81
+                        </div>
                     </div><!-- /.navbar-collapse -->
                 </div><!-- /.container-fluid -->
             </nav>
             <div class="mobile-sub-menu">
-                <div class="slogan">Логистика для цветочных магазинов</div>
+                <div class="slogan"/>
                 <div class="moduletable_LoginForm login-mobile">
                     <xsl:apply-templates select="//page/body/module[@name = 'CurentUser']/container[@module = 'login']"/>
                 </div>
                 <div class="phone-in-header phone-mobile">
-                    <span class="city-code">(812)</span> 407-24-52
+                    <span class="city-code">(812)</span> 242-80-81
                 </div>
             </div>
         </div>
@@ -162,7 +165,7 @@
             </xsl:if>
             <div class="well wrapper">
                 <div class="footerText">
-                    <div class="footer1">Copyright © <xsl:value-of select="//@year"/> Цветочное такси.
+                    <div class="footer1">Copyright © <xsl:value-of select="//@year"/> Скорая почта
                     </div>
                 </div>
             </div>

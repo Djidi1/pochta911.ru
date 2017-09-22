@@ -35,21 +35,23 @@
                                     <div class="input-group">
                                         <xsl:if test="(/page/body/module[@name='CurentUser']/container/group_id = 2)">
                                             <div class="input-group-addon">Отправитель:</div>
-                                            <input class="form-control" type="text" name="title" value="{client/item/title}" size="30" readonly=""/>
                                         </xsl:if>
                                         <xsl:if test="(/page/body/module[@name='CurentUser']/container/group_id != 2)">
-                                            <div class="input-group-addon">Выберите отправителя:</div>
-                                            <select class="form-control select2" name="new_user_id" onchange="set_sender();">
-                                                <xsl:for-each select="users/item">
+                                            <div class="input-group-addon">Выберите заказчика:</div>
+                                        </xsl:if>
+                                        <select class="form-control select2" name="new_user_id" onchange="set_sender();">
+                                            <xsl:for-each select="users/item">
+                                                <xsl:if test="(/page/body/module[@name='CurentUser']/container/group_id != 2) or ../../@user_id = id">
                                                     <option value="{id}" phone="{phone}" sender="{name}" pay_type="{pay_type}" from="{from}" from_region="{from_region}" from_AOGUID="{from_AOGUID}" from_house="{from_house}" from_appart="{from_appart}" from_comment="{from_comment}">
-                                                        <xsl:if test="../../order/id_user = id">
+                                                        <xsl:if test="../../order/id_user = id or (not(../../order/id_user) and ../../@user_id = id)">
                                                             <xsl:attribute name="selected">selected</xsl:attribute>
                                                         </xsl:if>
-                                                        <xsl:value-of select="name"/> [<xsl:value-of select="phone"/>]
+
+                                                        <xsl:value-of select="title"/> [<xsl:value-of select="phone"/>]
                                                     </option>
-                                                </xsl:for-each>
-                                            </select>
-                                        </xsl:if>
+                                                </xsl:if>
+                                            </xsl:for-each>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -59,11 +61,11 @@
                                 </div>
                                 <div class="col-sm-3 col-xs-6">
                                     <input class="form-control date-picker" type="text" name="date" onkeyup="check_user(this)" value="{order/date}" size="30" required="">
-                                        <xsl:if test="not(order/date)">
-                                            <xsl:attribute name="value">
-                                                <xsl:value-of select="@today"/>
-                                            </xsl:attribute>
-                                        </xsl:if>
+                                        <!--<xsl:if test="not(order/date)">-->
+                                            <!--<xsl:attribute name="value">-->
+                                                <!--<xsl:value-of select="@today"/>-->
+                                            <!--</xsl:attribute>-->
+                                        <!--</xsl:if>-->
                                     </input>
                                 </div>
                                 <xsl:if test="order/id > 0">
@@ -89,73 +91,12 @@
                                     </div>
                                 </xsl:if>
                             </div>
-                            <div class="row">
-                                <div class="col-sm-3 col-xs-6">
-                                    <strong>Откуда</strong>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <div class="input-group from-block" rel="{position()}">
-                                        <div class="form-control" style="width: 60%;">
-                                            <span class="order-add-title text-info">Адрес</span>
-                                            <input type="search" class="order-route-data spb-streets js-street_upper" name="from[]" title="Улица, проспект и т.д." value="{order/from}" onchange="" autocomplete="off" required="" region="{order/from_region}"/>
-                                            <input type="hidden" class="region" name="from_region[]" value="{order/from_region}"/>
-                                            <input type="hidden" class="AOGUID" name="from_AOGUID[]" value="{order/from_AOGUID}"/>
-                                        </div>
-                                        <div class="form-control" style="width: 20%;">
-                                            <span class="order-add-title text-info">дом/корп/строение</span>
-                                            <select type="text" class="order-route-data house number" name="from_house[]" title="Дом" value="{order/from_house}" onchange="calc_route(1)" autocomplete="off" required="" AOGUID="{order/from_AOGUID}">
-                                                <option value="{order/from_house}"><xsl:value-of select="order/from_house"/></option>
-                                            </select>
-                                        </div>
-                                        <div class="form-control" style="width: 20%;">
-                                            <span class="order-add-title text-info">кв/офис/помещ</span>
-                                            <input type="text" class="order-route-data number" name="from_appart[]" title="Квартира" value="{order/from_appart}" required=""/>
-                                        </div>
 
-                                        <div class="form-control" style="width: 30%;">
-                                            <span class="order-add-title text-warning">Отправитель ФИО</span>
-                                            <input type="text" class="order-route-data" name="from_fio[]" title="Отправитель" value="{order/from_fio}" required=""/>
-                                        </div>
-                                        <div class="form-control" style="width: 30%;">
-                                            <span class="order-add-title text-warning">
-                                                Телефон отправителя
-                                            </span>
-                                            <input type="text" class="order-route-data" name="from_phone[]" title="Телефон отправителя" value="{order/from_phone}" required=""/>
-                                        </div>
-                                        <div class="form-control" style="width: 20%;">
-                                            <span class="order-add-title text-danger">
-                                                Забрать с
-                                            </span>
-                                            <xsl:call-template name="time_selector">
-                                                <xsl:with-param name="select_class">order-route-data number time_ready_from</xsl:with-param>
-                                                <xsl:with-param name="select_name">time_ready_from[]</xsl:with-param>
-                                                <xsl:with-param name="select_title">Время забора с</xsl:with-param>
-                                                <xsl:with-param name="select_value" select="order/time_ready_from"/>
-                                                <xsl:with-param name="select_onchange">update_time_ready_from(this)</xsl:with-param>
-                                            </xsl:call-template>
-                                        </div>
-                                        <div class="form-control" style="width: 20%;">
-                                            <span class="order-add-title text-danger">
-                                                Забрать по
-                                            </span>
-                                            <xsl:call-template name="time_selector">
-                                                <xsl:with-param name="select_class">order-route-data number time_ready_end</xsl:with-param>
-                                                <xsl:with-param name="select_name">time_ready_end[]</xsl:with-param>
-                                                <xsl:with-param name="select_title">Время забора по</xsl:with-param>
-                                                <xsl:with-param name="select_value" select="order/time_ready_end"/>
-                                                <xsl:with-param name="select_onchange">update_time_ready_end(this)</xsl:with-param>
-                                            </xsl:call-template>
-                                        </div>
-                                        <textarea name="from_comment[]" class="form-control" title="Комментарий" placeholder="Примечания к адресу"  style="width: 100%;">
-                                            <xsl:value-of select="order/from_comment"/>
-                                        </textarea>
-                                    </div>
-                                </div>
-                            </div>
+                            <label>Откуда</label>
+                            <xsl:call-template name="from_address"/>
+
                             <label>Куда</label>
-                            <xsl:call-template name="adresses">
+                            <xsl:call-template name="addresses">
                                 <xsl:with-param name="no_edit" select="$no_edit"/>
                             </xsl:call-template>
                         </div>
@@ -179,7 +120,9 @@
                                     Если вы хотетите отредактировать или отменить заказ свяжитесь, пожалуйста, с оператором по телефону: <b>407-24-52</b>
                                 </div>
                             </xsl:if>
-                            <div style="text-align:right" class="small text-muted">Изменен: <xsl:value-of select="order/dk"/></div>
+                            <xsl:if test="order/dk">
+                                <div style="text-align:right" class="small text-muted">Изменен: <xsl:value-of select="order/dk"/></div>
+                            </xsl:if>
                         </div>
                     </div>
                 </div>
@@ -225,7 +168,7 @@
             $('input, select').on('change', function() {
                 $('#order_edited').val(1);
             });
-            $('select.time_ready_from, select.time_ready_end, select.to_time, select.to_time_end, select.to_time_target').on('change', function() {
+            $('select.time_ready_from, select.time_ready_end, select.to_time, select.to_time_end, select.to_time_target, input[name=date]').on('change', function() {
                 $('#time_edited').val(1);
             });
             if ($('#order_id').val() == ''){
@@ -233,7 +176,69 @@
             }
         </script>
     </xsl:template>
-    <xsl:template name="adresses">
+    <xsl:template name="from_address">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="input-group from-block" rel="{position()}">
+                    <div class="form-control" style="width: 60%;">
+                        <span class="order-add-title text-info">Адрес</span>
+                        <input type="search" class="order-route-data spb-streets js-street_upper" name="from[]" title="Улица, проспект и т.д." value="{order/from}" onchange="" autocomplete="off" required="" region="{order/from_region}"/>
+                        <input type="hidden" class="region" name="from_region[]" value="{order/from_region}"/>
+                        <input type="hidden" class="AOGUID" name="from_AOGUID[]" value="{order/from_AOGUID}"/>
+                    </div>
+                    <div class="form-control" style="width: 20%;">
+                        <span class="order-add-title text-info">дом/корп/строение</span>
+                        <select type="text" class="order-route-data house number" name="from_house[]" title="Дом" value="{order/from_house}" onchange="calc_route(1)" autocomplete="off" required="" AOGUID="{order/from_AOGUID}">
+                            <option value="{order/from_house}"><xsl:value-of select="order/from_house"/></option>
+                        </select>
+                    </div>
+                    <div class="form-control" style="width: 20%;">
+                        <span class="order-add-title text-info">кв/офис/помещ</span>
+                        <input type="text" class="order-route-data number" name="from_appart[]" title="Квартира" value="{order/from_appart}" required=""/>
+                    </div>
+
+                    <div class="form-control" style="width: 30%;">
+                        <span class="order-add-title text-warning">Отправитель ФИО</span>
+                        <input type="text" class="order-route-data" name="from_fio[]" title="Отправитель" value="{order/from_fio}" required=""/>
+                    </div>
+                    <div class="form-control" style="width: 30%;">
+                        <span class="order-add-title text-warning">
+                            Телефон отправителя
+                        </span>
+                        <input type="text" class="order-route-data phone-number" name="from_phone[]" title="Телефон отправителя" value="{order/from_phone}" required=""/>
+                    </div>
+                    <div class="form-control" style="width: 20%;">
+                        <span class="order-add-title text-danger">
+                            Забрать с
+                        </span>
+                        <xsl:call-template name="time_selector">
+                            <xsl:with-param name="select_class">order-route-data number time_ready_from</xsl:with-param>
+                            <xsl:with-param name="select_name">time_ready_from[]</xsl:with-param>
+                            <xsl:with-param name="select_title">Время забора с</xsl:with-param>
+                            <xsl:with-param name="select_value" select="order/time_ready_from"/>
+                            <xsl:with-param name="select_onchange">update_time_ready_from(this)</xsl:with-param>
+                        </xsl:call-template>
+                    </div>
+                    <div class="form-control" style="width: 20%;">
+                        <span class="order-add-title text-danger">
+                            Забрать по
+                        </span>
+                        <xsl:call-template name="time_selector">
+                            <xsl:with-param name="select_class">order-route-data number time_ready_end</xsl:with-param>
+                            <xsl:with-param name="select_name">time_ready_end[]</xsl:with-param>
+                            <xsl:with-param name="select_title">Время забора по</xsl:with-param>
+                            <xsl:with-param name="select_value" select="order/time_ready_end"/>
+                            <xsl:with-param name="select_onchange">update_time_ready_end(this)</xsl:with-param>
+                        </xsl:call-template>
+                    </div>
+                    <textarea name="from_comment[]" class="form-control" title="Комментарий" placeholder="Примечания к адресу"  style="width: 100%;">
+                        <xsl:value-of select="order/from_comment"/>
+                    </textarea>
+                </div>
+            </div>
+        </div>
+    </xsl:template>
+    <xsl:template name="addresses">
         <xsl:param name="no_edit"/>
         <xsl:for-each select="routes/item">
             <xsl:call-template name="routes">
@@ -271,7 +276,7 @@
                 <span class="order-add-title text-warning">
                     Телефон получателя
                 </span>
-                <input type="text" class="order-route-data" name="to_phone[]" title="Телефон получателя" value="{to_phone}" required=""/>
+                <input type="text" class="order-route-data phone-number" name="to_phone[]" title="Телефон получателя" value="{to_phone}" required=""/>
             </div>
 
 <!-- Строка времени -->
@@ -345,7 +350,7 @@
                 <select class="order-route-data goods_type" name="goods_type[]" title="Тип товара" onchange="calc_route(1);" required="">
                     <xsl:variable name="goods_type" select="goods_type"/>
                     <option value=""> </option>
-                    <xsl:for-each select="../../goods/item">
+                    <xsl:for-each select="../../goods/item | goods/item">
                         <option value="{goods_id}">
                             <xsl:if test="goods_id = $goods_type">
                                 <xsl:attribute name="selected">selected</xsl:attribute>
@@ -371,9 +376,12 @@
                 <span class="order-add-title text-success">
                     Цена доставки
                 </span>
-                <input type="text" class="order-route-data number cost_route" name="cost_route[]" title="Стоимость доставки" value="{cost_route}" onkeyup="re_calc(this)" required="">
-                    <xsl:if test="/page/body/module[@name='CurentUser']/container/group_id = 2">
+                <input type="text" class="order-route-data number cost_route" name="cost_route[]" title="Стоимость доставки" value="{cost_route}" onkeyup="re_calc(this)">
+                    <xsl:if test="/page/body/module[@name='CurentUser']/container/group_id = 2 or /page/body/module[@name='CurentUser']/container/group_id = ''">
                         <xsl:attribute name="readonly">readonly</xsl:attribute>
+                    </xsl:if>
+                    <xsl:if test="/page/body/module[@name='CurentUser']/container/group_id != 2 and /page/body/module[@name='CurentUser']/container/group_id != ''">
+                        <xsl:attribute name="required">required</xsl:attribute>
                     </xsl:if>
                 </input>
             </div>
@@ -391,7 +399,7 @@
                     <xsl:variable name="pay_type" select="pay_type"/>
                     <xsl:variable name="user_pay_type" select="//@user_pay_type"/>
                     <option value=""> </option>
-                    <xsl:for-each select="../../pay_types/item">
+                    <xsl:for-each select="../../pay_types/item | pay_types/item">
                         <option value="{id}">
                             <xsl:if test="id = $pay_type or (not($pay_type) and $user_pay_type = id)">
                                 <xsl:attribute name="selected">selected</xsl:attribute>
@@ -487,23 +495,12 @@
             <xsl:if test="$select_name = 'time_ready_end[]'">
                 <option value="-">∞</option>
             </xsl:if>
-            <xsl:for-each select="../../timer/element">
+            <xsl:for-each select="../../timer/element | timer/element">
                 <option value="{.}">
                     <xsl:if test=". = $select_value">
                         <xsl:attribute name="selected">selected</xsl:attribute>
                     </xsl:if>
                     <xsl:if test="not(../../order/id) and . = ../../@time_now_five and $select_name != 'to_time_ready_end[]'">
-                        <xsl:attribute name="selected">selected</xsl:attribute>
-                    </xsl:if>
-                    <xsl:value-of select="."/>
-                </option>
-            </xsl:for-each>
-            <xsl:for-each select="timer/element">
-                <option value="{.}">
-                    <xsl:if test=". = $select_value">
-                        <xsl:attribute name="selected">selected</xsl:attribute>
-                    </xsl:if>
-                    <xsl:if test="not(order/id) and . = @time_now_five and $select_name != 'time_ready_end[]'">
                         <xsl:attribute name="selected">selected</xsl:attribute>
                     </xsl:if>
                     <xsl:value-of select="."/>

@@ -71,36 +71,40 @@ function getRandomInt(min, max){
 }
 
 
-function recover_password(){
-    bootbox.prompt({
-        title: "Введите ваш номер телефона в формате 89991234567:",
-        inputType: 'number',
+function recover_password(phone_user){
+    var dialog = bootbox.dialog({
+        title: "Введите ваш номер телефона:",
+        message: '<input class="form-control phone-number" value="'+phone_user+'"/>',
         buttons: {
             confirm: {
                 label: 'Отправить пароль',
-                className: 'btn-success'
+                className: 'btn-success',
+                callback: function(){
+                    var phone = $(dialog).find('.phone-number').val();
+                    if ( phone != '' && phone != null ){
+                        $.post("/title/?RecoverPass", {phone:phone},  function(data) {
+                            bootbox.alert(data);
+                        });
+                    } else if (phone == null) {
+
+                    }else{
+                        bootbox.alert({
+                            message: 'Введите ваш номер телефона.',
+                            callback: function () {
+                                recover_password('');
+                            }
+                        });
+                    }
+                }
             },
             cancel: {
                 label: 'Отмена',
                 className: 'btn-danger'
             }
-        },
-        callback: function (phone) {
-            if ( phone != '' && phone != null ){
-                $.post("?RecoverPass", {phone:phone},  function(data) {
-                    bootbox.alert(data);
-                });
-            } else if (phone == null) {
-
-			}else{
-                bootbox.alert({
-                    message: 'Введите ваш номер телефона.',
-                    callback: function () {
-                        recover_password();
-                    }
-                });
-            }
         }
+    });
+    dialog.bind('shown.bs.modal', function(){
+        add_phone_masks();
     });
 
 

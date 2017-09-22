@@ -123,7 +123,7 @@ function calc_route(recalc_cost, dest_point) {
         if (route_address !== '') {
             route_address = (route_address.indexOf(',') > -1 || route_address_region == 47) ? 'Ленинградская обл., ' + route_address : 'Санкт-Петербург, ' + route_address;
             way_points.push({
-                location: (route_address + ((route_to_house !== '') ? (', ' + route_to_house) : '')) + '',
+                location: (route_address + ((route_to_house != '' && route_to_house != null) ? (', ' + route_to_house) : '')) + '',
                 stopover: true
             });
             i++;
@@ -340,6 +340,8 @@ function calc_route(recalc_cost, dest_point) {
                 if (delivery_sum > 0) {
                     $('.delivery_sum').html('<b>Итоговая сумма доставки заказа: ' + delivery_sum + '.00 руб</b>');
                     $('.delivery_sum_title').html('<b>' + delivery_sum + '.00 р.</b>');
+                    $('.add_order_main').hide();
+                    $('.add_order').show();
                 }
             } else {
                 if (status == 'NOT_FOUND'){

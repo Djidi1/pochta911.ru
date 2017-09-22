@@ -170,34 +170,18 @@
 								</tr>
 							</xsl:if>
 						</xsl:for-each>
-						<xsl:if test="count(users/user[isban=1]) &gt; 0">
-						<tr>
-							<xsl:attribute name="bgcolor">#FF9999</xsl:attribute>
-							<td colspan="10" align="center">
-								<font color="#000000">
-									<b>Удаленные пользователи</b>
-								</font>
-							</td>
-						</tr>
-						</xsl:if>
 						<xsl:for-each select="users/user">
 							<xsl:if test="isban=1">
-								<tr>
+								<tr class="text-danger">
 									<xsl:attribute name="bgcolor"><xsl:if test="position() mod 2 =1">#EDF7FE</xsl:if><xsl:if test="position() mod 2 =0">#E4F2FD</xsl:if></xsl:attribute>
 									<td>
-										<xsl:value-of select="id"/>
+										<xsl:value-of select="position()"/> [<xsl:value-of select="id"/>]
 									</td>
 									<td>
 										<xsl:value-of select="name"/>
 									</td>
-                                    <td>
-                                        <xsl:value-of select="tab_no"/>
-                                    </td>
-                                    <td>
-                                        <xsl:value-of select="ip"/>
-                                    </td>
 									<td>
-										<xsl:value-of select="email"/>
+										<xsl:value-of select="title"/>
 									</td>
 									<td>
 										<xsl:value-of select="login"/>
@@ -205,7 +189,15 @@
 									<td>
 										<xsl:value-of select="group_name"/>
 									</td>
-									
+									<td>
+										<xsl:value-of select="phone"/>
+									</td>
+									<td>
+										<xsl:value-of select="phone_mess"/>
+									</td>
+									<td>
+										<xsl:value-of select="email"/>
+									</td>
 									<td>
 										<xsl:value-of select="date_reg"/>
 									</td>

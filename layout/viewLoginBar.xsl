@@ -42,7 +42,7 @@
                                     <input id="modlgn-passwd" type="password" name="userpass" class="form-control" size="18" value=""/>
                                 </p>
                                 <p id="form-login-password">
-                                    <span class="btn btn-link" onclick="recover_password()">Забыли пароль?</span>
+                                    <span class="btn btn-link" onclick="recover_password('')">Забыли пароль?</span>
                                 </p>
                                 <div class="wrapper">
                                     <div class="create" style="text-align: right">

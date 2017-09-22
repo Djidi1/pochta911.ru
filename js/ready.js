@@ -79,7 +79,8 @@ jQuery(function ($) {
     //ui_add();
     // автозаполнение улиц
     autoc_spb_streets();
-
+    // маски ввода
+    add_phone_masks();
     // Установка дата/время пикеров
     $('.time-picker').each(function () {
         $(this).datetimepicker(timeoptions).on("dp.change", function (e) {

@@ -25,10 +25,17 @@ class ordersModel extends module_model {
 			if (isset($row['time_ready_end'])) $row['time_ready_end'] = substr($row['time_ready_end'],0,5);
 			if (isset($row['to_time_ready_end'])) $row['to_time_ready_end'] = substr($row['to_time_ready_end'],0,5);
             if (isset($row['date'])) $row['date'] = $this->dateToRuFormat($row['date']);
+            if (isset($row['from_phone'])) $row['from_phone'] = $this->formatPhoneNumber($row['from_phone']);
+            if (isset($row['to_phone'])) $row['to_phone'] = $this->formatPhoneNumber($row['to_phone']);
 			$items[] = $row;
 		}
 		return $items;
 	}
+
+	public function formatPhoneNumber($phone){
+        $phone = preg_replace("/[^0-9]/", "", ($phone) );
+        return '+7'.substr($phone,1,10);
+    }
 
 	public function exportToExcel($titles,$orders){
         require_once CORE_ROOT . 'classes/PHPExcel.php';
@@ -154,7 +161,8 @@ class ordersModel extends module_model {
                   ORDER BY COUNT(id) DESC
                   LIMIT 1) AS a ON a.id_user = u.id
                 WHERE u.isban < 1 and (g.group_id = 2 or u.id = $uid)
-                 AND (name <> '' OR phone <> '')";
+                 AND (name <> '' OR phone <> '')
+                 ORDER BY u.title";
         return $this->get_assoc_array($sql);
     }
     public function getUserParams($uid) {
@@ -296,6 +304,8 @@ class ordersModel extends module_model {
 		// один заказ
 		while ( ($row = $this->fetchRowA ()) !== false ) {
 			$row['date'] = $this->dateToRuFormat($row['date']);
+            if (isset($row['from_phone'])) $row['from_phone'] = $this->formatPhoneNumber($row['from_phone']);
+            if (isset($row['to_phone'])) $row['to_phone'] = $this->formatPhoneNumber($row['to_phone']);
             if (isset($row['time_ready_from'])) $row['time_ready_from'] = substr($row['time_ready_from'],0,5);
             if (isset($row['time_ready_end'])) $row['time_ready_end'] = substr($row['time_ready_end'],0,5);
 			$items = $row;
@@ -500,6 +510,7 @@ class ordersModel extends module_model {
 	}
 
 	public function orderUpdate($params) {
+        $order_id = $params['order_id'];
         $order_id = $params['order_id'];
         $id_user = $params['id_user'];
         $date = $params['date'];
@@ -804,7 +815,7 @@ class ordersProcess extends module_process {
             list($g_price, $goods) = $this->nModel->getGoodsPriceList();
 			$stores = $this->nModel->getStores($uid);
 			$client_title = $this->nModel->getClientTitle($uid);
-			$this->nView->viewOrderEdit ( $order, $users, $stores, $routes, $pay_types, $statuses,
+			$this->nView->viewOrderEdit ( $user_id, $order, $users, $stores, $routes, $pay_types, $statuses,
                 $car_couriers, $timer, $prices, $add_prices, $client_title, $without_menu, $is_single,
                 $user_pay_type, $user_fix_price, $times, $g_price, $goods );
 		}
@@ -817,6 +828,9 @@ class ordersProcess extends module_process {
 		}
 
 		if ($action == 'orderUpdate') {
+
+            $from_main_page = $this->Vals->getVal('from_main_page', 'POST', 'integer');
+
             $params['order_id'] = $this->Vals->getVal('order_id', 'POST', 'integer');
             $params['id_user'] = $this->Vals->getVal('id_user', 'POST', 'integer');
             $params['date'] = $this->Vals->getVal('date', 'POST', 'string');
@@ -859,67 +873,74 @@ class ordersProcess extends module_process {
             $dontsend_message = false;
             $send_message_to_client = false;
             $message_add_text = "";
-			if ($params['order_id'] > 0) {
-                if ($group_id != 2){
-                    $user_id = $this->Vals->getVal ( 'new_user_id', 'POST', 'integer' );
-                    if ($user_id > 0){
-                        $params['id_user'] = $user_id;
+            // Проверка, что пришли из заказа (с набором данных)
+            if ($params['date'] != '') {
+                if ($params['order_id'] > 0) {
+                    if ($group_id != 2) {
+                        $user_id = $this->Vals->getVal('new_user_id', 'POST', 'integer');
+                        if ($user_id > 0) {
+                            $params['id_user'] = $user_id;
+                        }
                     }
-                }
-                $order_info = $this->nModel->getOrderInfo($params['order_id']);
-                $order_routes_info = $this->nModel->getOrderRoutesInfo($params['order_id']);
-                foreach ($params['status'] as $key => $route_statuses) {
-                    $now_status = $order_routes_info[$key]['id_status'];
-                    // Не отправляем сообщений, если новый статус равен предыдущему
-                    if ($now_status == $route_statuses) {
-                        $dontsend_message = true;
+                    $order_info = $this->nModel->getOrderInfo($params['order_id']);
+                    $order_routes_info = $this->nModel->getOrderRoutesInfo($params['order_id']);
+                    foreach ($params['status'] as $key => $route_statuses) {
+                        $now_status = $order_routes_info[$key]['id_status'];
+                        // Не отправляем сообщений, если новый статус равен предыдущему
+                        if ($now_status == $route_statuses) {
+                            $dontsend_message = true;
+                        }
                     }
-                }
-				$order_id = $this->nModel->orderUpdate($params);
-                $send_message_to_client = false;
-			}else{
-			    if ($group_id != 2){
-                    $new_user_id = $this->Vals->getVal ( 'new_user_id', 'POST', 'integer' );
-                    $user_id = $new_user_id > 0 ? $new_user_id : $user_id;
-                }
-                if ($user_id > 0) {
-                    $order_id = $this->nModel->orderInsert($user_id, $params);
-                    $order_info = $this->nModel->getOrderInfo($order_id);
-                    $message_add_text = "Заказ принят, ожидайте курьера.";
-                    $send_message_to_client = true;
-                }
-			}
-
-			// Если статус больше статуса в исполнении
-            if (isset($params['status']) and is_array($params['status'])) {
-                foreach ($params['status'] as $route_statuses) {
-                    if ($route_statuses > 3) {
+                    $order_id = $this->nModel->orderUpdate($params);
+                    $send_message_to_client = false;
+                } else {
+                    if ($group_id != 2) {
+                        $new_user_id = $this->Vals->getVal('new_user_id', 'POST', 'integer');
+                        $user_id = $new_user_id > 0 ? $new_user_id : $user_id;
+                    }
+                    if ($user_id > 0) {
+                        $order_id = $this->nModel->orderInsert($user_id, $params);
+                        $order_info = $this->nModel->getOrderInfo($order_id);
+                        $message_add_text = "Заказ принят, ожидайте курьера.";
                         $send_message_to_client = true;
                     }
                 }
-            }
 
-            if ($send_message_to_client and !$dontsend_message and isset($order_id)) {
-                $message = $this->getOrderTextInfo($order_id);
-                $message .= $message_add_text;
-                list($chat_id, $phone) = $this->nModel->getChatIdByOrder($order_id);
-                if (isset($chat_id) and $chat_id != '') {
-                    $this->telegram($message, $chat_id);
-//                    $this->telegram($message, '243045100'); // Отправка нового заказа Админу
-//                    $this->telegram($message, '196962258');
-//                    $this->telegram($message, '379575863');
+                // Если статус больше статуса в исполнении
+                if (isset($params['status']) and is_array($params['status'])) {
+                    foreach ($params['status'] as $route_statuses) {
+                        if ($route_statuses > 3) {
+                            $send_message_to_client = true;
+                        }
+                    }
                 }
-                if (isset($phone) and $phone != '') {
-                    $this->send_sms($phone, $message);
+
+                if ($send_message_to_client and !$dontsend_message and isset($order_id)) {
+                    $message = $this->getOrderTextInfo($order_id);
+                    $message .= $message_add_text;
+                    $this->telegram($message, '243045100'); // Отправка нового заказа Админу
+                    $this->telegram($message, '196962258');
+                    $this->telegram($message, '379575863');
+                    list($chat_id, $phone) = $this->nModel->getChatIdByOrder($order_id);
+                    if (isset($chat_id) and $chat_id != '') {
+                        $this->telegram($message, $chat_id);
+                    }
+                    if (isset($phone) and $phone != '') {
+                        $this->send_sms($phone, $message);
+                    }
                 }
-            }
 
-            //отправка сообщения курьеру
-            if (isset($order_info) and isset($order_id) and $params['car_courier'] > 0 and $order_info['id_car'] != $params['car_courier']){
-                $this->saveCourier($user_id,$order_id,$params['car_courier']);
+                //отправка сообщения курьеру
+                if (isset($order_info) and isset($order_id) and $params['car_courier'] > 0 and $order_info['id_car'] != $params['car_courier']) {
+                    $this->saveCourier($user_id, $order_id, $params['car_courier']);
+                }
+                $this->nView->viewMessage('Заказ успешно сохранен.' . (isset($order_id) ? ' Номер для отслеживания: ' . $order_id : ''), 'Сообщение');
+            }else{
+                $this->nView->viewMessage('Пожалуйста подождите...', 'Сообщение');
             }
-
-			$this->nView->viewMessage('Заказ успешно сохранен.'.(isset($order_id)?' Номер для отслеживания: '.$order_id:''), 'Сообщение');
+            if ($from_main_page == 1){
+                $this->User->logout();
+            }
             $this->updated = true;
 		}
 
@@ -1047,10 +1068,12 @@ class ordersProcess extends module_process {
 		}
 */
 		if ($action == 'view') {
+		    /*
 		    $check_user_card = $this->nModel->checkUserCard($user_id);
 		    if ($check_user_card){
 		        header('location: /admin/userEdit-'.$user_id.'/add_data-1/');
             }
+		    */
             list($from, $to) = $this->get_post_date();
             $statuses = $this->nModel->getStatuses();
 			$orders = $this->nModel->getLogistList($from, $to, $user_id);
@@ -1342,12 +1365,13 @@ class ordersView extends module_View {
 		return true;
 	}
 	
-	public function viewOrderEdit($order, $users, $stores, $routes, $pay_types,
+	public function viewOrderEdit($user_id, $order, $users, $stores, $routes, $pay_types,
                                   $statuses, $car_couriers, $timer, $prices, $add_prices,
                                   $client_title, $without_menu, $is_single, $user_pay_type,
                                   $user_fix_price, $times, $g_price, $goods) {
 		$this->pXSL [] = RIVC_ROOT . 'layout/orders/order.edit.xsl';
         $Container = $this->newContainer('order');
+        $this->addAttr('user_id', $user_id, $Container);
         $this->addAttr('today', date('d.m.Y'), $Container);
         $this->addAttr('time_now', time(), $Container);
         $this->addAttr('user_pay_type', $user_pay_type, $Container);

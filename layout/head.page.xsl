@@ -9,7 +9,7 @@
 				<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			</xsl:if>
 			<base href="."/>
-			<title>Доставка цветов</title>
+			<title>Скорая почта - Мы спасаем ваше время</title>
 			<xsl:call-template name="css_js_header"/>
 			<script type="text/javascript" src="/callme/js/callme.js"/>
 		</head>
@@ -19,7 +19,7 @@
 			<xsl:value-of select="//page/body/@contentContainer"/>
 		</xsl:variable>
 		<div id="header">
-			<nav class="navbar navbar-default">
+			<nav class="navbar  navbar-inverse">
 				<div class="container-fluid">
 					<!-- Brand and toggle get grouped for better mobile display -->
 					<div class="navbar-header">
@@ -57,7 +57,7 @@
 							<xsl:apply-templates select="//page/body/module[@name = 'CurentUser']/container[@module = 'login']"/>
 						</div>
 						<div class="phone-in-header phone">
-							<span class="city-code">(812)</span> 407-24-52
+							<span class="city-code">(812)</span> 242-80-81
 						</div>
 					</div><!-- /.navbar-collapse -->
 				</div><!-- /.container-fluid -->
@@ -74,7 +74,7 @@
 								</p>
 								<p id="form-login-phone">
 									<label for="modlgn-phone">Номер мобильного телефона</label>
-									<input id="modlgn-phone" type="text" name="phone" class="form-control phone-number" maxlength="11"  placeholder="8XXXXXXXXXX"/>
+									<input id="modlgn-phone" type="text" name="phone" class="form-control phone-number" maxlength="11"/>
 								</p>
 								<p id="form-login-desc">
 									<label for="modlgn-desc">Цель регистрации</label>
@@ -103,12 +103,12 @@
 				</script>
 			</div>
 			<div class="mobile-sub-menu">
-				<div class="slogan">Логистика для цветочных магазинов</div>
+				<div class="slogan">Скорая Почта</div>
 				<div class="moduletable_LoginForm login-mobile">
 					<xsl:apply-templates select="//page/body/module[@name = 'CurentUser']/container[@module = 'login']"/>
 				</div>
 				<div class="phone-in-header phone-mobile">
-					<span class="city-code">(812)</span> 407-24-52
+					<span class="city-code">(812)</span> 242-80-81
 				</div>
 			</div>
 		</div>

@@ -114,7 +114,10 @@ class adminModel extends module_model {
 			$this->query($sql, $Params ['group_id'], $user_id);
 
 			$Params ['user_id'] = $user_id;
-			$this->updateAddrAndCard($Params, 1);
+
+            if (isset($Params['addr_id'])) {
+                $this->updateAddrAndCard($Params, 1);
+            }
 		}
 		return $test;
 	}
@@ -150,8 +153,9 @@ class adminModel extends module_model {
 		$sql = 'UPDATE `groups_user` SET `group_id`  = \'%1$u\' WHERE `user_id` = \'%2$u\'';
 		$this->query ( $sql, $Params ['group_id'], $Params ['user_id'] );
 
-		$this->updateAddrAndCard($Params, 1);
-
+        if (isset($Params['addr_id'])) {
+            $this->updateAddrAndCard($Params, 1);
+        }
 		return $test;
 	}
 
