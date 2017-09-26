@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     <xsl:template name="css_js_header">
+        <!-- Global Site Tag (gtag.js) - Google Analytics -->
+        <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-106491809-1"/>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments)};
+            gtag('js', new Date());
+            gtag('config', 'UA-106491809-1');
+        </script>
+
         <link href="/images/favicon.png" rel="shortcut icon" type="image/vnd.microsoft.icon"/>
         <link rel="stylesheet" href="/css/camera.css"/>
         <link rel="stylesheet" href="/css/select2.css?v4.0.3"/>
-        <link rel="stylesheet" href="/css/style.css?v2.7"/>
+        <link rel="stylesheet" href="/css/style.css?v2.71"/>
         <link rel="stylesheet" href="/css/font-awesome.min.css"/>
         <link rel="stylesheet" href="/css/print.css" media="Print"/>
         <link rel="stylesheet" href="/css/bootstrap.min.css?v2.1"/>
@@ -23,7 +32,7 @@
         <script src="/js/camera.min.js"/>
         <script src="/js/jquery.mask.js"/>
         <script src="/js/ready.js?v2.52"/>
-        <script src="/js/common.js?v3.16"/>
+        <script src="/js/common.js?v3.17"/>
         <script src="/js/script.js?v2.72"/>
         <script src="//cdn.ckeditor.com/4.6.1/full/ckeditor.js"/>
         <script src="//cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js"/>

@@ -32,57 +32,15 @@
                 </div>
             </div>
             <div class="row">
-                <!--<div class="col-md-4">-->
-                    <!--<div class="panel panel-info">-->
-                        <!--<div class="panel-heading">-->
-                            <!--<h3 class="panel-title">Добро пожаловать в Цветочное Такси!</h3>-->
-                        <!--</div>-->
-                        <!--<div id="viewListlang" class="panel-body">-->
-                            <!--<p>Очень надеемся, что этот сайт сделает более легким и удобным наше общение.-->
-                                <!--<br/>-->
-                                <!--<br/>-->
-                                <!--<strong>После регистрации вам будут доступны:</strong>-->
-                            <!--</p>-->
-
-                            <!--<ul>-->
-                                <!--<li>форма заказа доставки цветов</li>-->
-                                <!--<li>расчет стоимости доставки в режиме онлайн</li>-->
-                                <!--<li>отслеживание состояние ваших заказов</li>-->
-                                <!--<li>получение уведомлений об изменении статусов ваших заказов</li>-->
-                                <!--<li>неограниченный доступ к истории своих заказов</li>-->
-                                <!--&lt;!&ndash;&lt;!&ndash; <li>оплатить тур не выходя из дома и распечатать договор, ваучер и путевку (<span style="color:#FF8C00"><strong>после 10.10.2014</strong></span>)</li> &ndash;&gt;&ndash;&gt;-->
-                                <!--&lt;!&ndash;<li>увидеть сколько мест осталось в продаже</li>&ndash;&gt;-->
-                                <!--&lt;!&ndash;<li>получить информацию по выезду просто наведя курсор на нужный тур</li>&ndash;&gt;-->
-                                <!--&lt;!&ndash;<li>по номеру заказа внести изменения и дополнения в свою заявку</li>&ndash;&gt;-->
-                                <!--&lt;!&ndash;<li>посмотреть на карте места остановок автобуса</li>&ndash;&gt;-->
-                                <!--&lt;!&ndash;<li>получить информацию важную и просто интересную</li>&ndash;&gt;-->
-                                <!--&lt;!&ndash;<li>купить "горящую путевку" с хорошей скидкой</li>&ndash;&gt;-->
-                                <!--&lt;!&ndash;<li>подобрать экскурсионную поездку или игру-квест для школьной группы</li>&ndash;&gt;-->
-                                <!--&lt;!&ndash;<li>подписаться на рассылку, заказать обратный звонок и многое другое</li>&ndash;&gt;-->
-                            <!--</ul>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
                 <div class="col-md-12">
-                    <div class="panel panel-info">
-                        <div class="panel-heading">
-
-                            <!--<a href="#" title="" class="btn btn-warning btn-xs"-->
-                               <!--style="color: #fff;width: 100px;float: right;">Перейти-->
-                            <!--</a>-->
-                            <h3 class="panel-title">Калькулятор доставки</h3>
-                        </div>
-                        <div class="panel-body">
-                            <xsl:call-template name="calcOnMain"/>
-                            <div style="display:none">
-                                <xsl:for-each select="prices/item">
-                                    <input id="km_{id}" class="km_cost" type="hidden" value="{km_cost}" km_from="{km_from}" km_to="{km_to}"/>
-                                </xsl:for-each>
-                                <xsl:for-each select="add_prices/item">
-                                    <input id="km_{type}" type="hidden" value="{cost_route}"/>
-                                </xsl:for-each>
-                            </div>
-                        </div>
+                    <xsl:call-template name="calcOnMain"/>
+                    <div style="display:none">
+                        <xsl:for-each select="prices/item">
+                            <input id="km_{id}" class="km_cost" type="hidden" value="{km_cost}" km_from="{km_from}" km_to="{km_to}"/>
+                        </xsl:for-each>
+                        <xsl:for-each select="add_prices/item">
+                            <input id="km_{type}" type="hidden" value="{cost_route}"/>
+                        </xsl:for-each>
                     </div>
                 </div>
             </div>
@@ -102,69 +60,68 @@
     </xsl:template>
     <xsl:template name="calcOnMain">
         <div class="col-sm-4">
-            <div class="pre_order">
-                <div class="alert alert-warning">
-                    <span class="glyphicon glyphicon-info-sign"/>
-                    <i> Введите адреса для моментального расчёта стоимости доставки:</i>
-                </div>
-                <hr/>
-                <div class="row">
-                    <div class="col-xs-12">
-                        <div class="input-group" rel="{position()}" style="width: 100%;">
-                            <div class="form-control" style="width: 70%;">
-                                <span class="order-add-title text-info">Адрес отправления</span>
-                                <input type="search" class="order-route-data spb-streets js-street_upper" name="from[]" title="Улица, проспект и т.д." onchange="" autocomplete="off" required=""/>
-                            </div>
-                            <div class="form-control" style="width: 30%;">
-                                <span class="order-add-title text-info">дом/корп.</span>
-                                <select type="text" class="order-route-data house number" name="from_house[]" title="Дом/Корпус" onchange="calc_route(1)" autocomplete="off" required="" AOGUID=""/>
+
+        <div class="alert alert-success add_order_main">
+            <span class="glyphicon glyphicon-ok-sign"/>
+            <xsl:text> </xsl:text>
+            <i>Вы можете прямо сейчас заказать доставку: </i>
+            <span class="btn btn-success btn-md" onclick="add_order()">Оформить заказ</span>
+        </div>
+
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Предарительный расчет доставки</h3>
+            </div>
+            <div class="panel-body">
+                <div class="pre_order">
+                    <div class="alert alert-warning">
+                        <span class="glyphicon glyphicon-info-sign"/>
+                        <i> Введите адреса для моментального расчёта стоимости доставки:</i>
+                    </div>
+                    <hr/>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="input-group" rel="{position()}" style="width: 100%;">
+                                <div class="form-control" style="width: 70%;">
+                                    <span class="order-add-title text-info">Адрес отправления</span>
+                                    <input type="search" class="order-route-data spb-streets js-street_upper" name="from[]" title="Улица, проспект и т.д." onchange="" autocomplete="off" required=""/>
+                                </div>
+                                <div class="form-control" style="width: 30%;">
+                                    <span class="order-add-title text-info">дом/корп.</span>
+                                    <select type="text" class="order-route-data house number" name="from_house[]" title="Дом/Корпус" onchange="calc_route(1)" autocomplete="off" required="" AOGUID=""/>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <br/>
-                <div class="row">
-                    <div class="col-xs-12">
-                        <div class="input-group" rel="{position()}" style="width: 100%;">
-                            <div class="form-control" style="width: 70%;">
-                                <span class="order-add-title text-info">Адрес доставки</span>
-                                <input type="search" class="order-route-data spb-streets js-street_upper" name="to[]" title="Улица, проспект и т.д." onchange="" autocomplete="off" required=""/>
-                            </div>
-                            <div class="form-control" style="width: 30%;">
-                                <span class="order-add-title text-info">дом/корп.</span>
-                                <select type="text" class="order-route-data house number" name="to_house[]" title="Дом/Корпус" onchange="calc_route(1)" autocomplete="off" required="" AOGUID=""/>
+                    <br/>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="input-group" rel="{position()}" style="width: 100%;">
+                                <div class="form-control" style="width: 70%;">
+                                    <span class="order-add-title text-info">Адрес доставки</span>
+                                    <input type="search" class="order-route-data spb-streets js-street_upper" name="to[]" title="Улица, проспект и т.д." onchange="" autocomplete="off" required=""/>
+                                </div>
+                                <div class="form-control" style="width: 30%;">
+                                    <span class="order-add-title text-info">дом/корп.</span>
+                                    <select type="text" class="order-route-data house number" name="to_house[]" title="Дом/Корпус" onchange="calc_route(1)" autocomplete="off" required="" AOGUID=""/>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <hr/>
-                <span class="btn btn-info calc_route" onclick="calc_route(1)">Рассчитать доставку</span>
-                <div class="delivery_sum_title">---</div>
-                <hr/>
-                <div class="alert alert-success add_order_main">
-                    <span class="glyphicon glyphicon-ok-sign"/>
-                    <xsl:text> </xsl:text>
-                    <i>Вы можете прямо сейчас заказать доставку: </i>
-                    <span class="btn btn-success btn-sm" onclick="add_order()">Оформить заказ</span>
+                    <hr/>
+                    <span class="btn btn-info calc_route" onclick="calc_route(1)">Рассчитать доставку</span>
+                    <div class="delivery_sum_title">---</div>
                 </div>
             </div>
+        </div>
 
             <div class="additional_block">
-
                 <div class="alert alert-success add_order" style="display:none">
                     <span class="glyphicon glyphicon-ok-sign"/>
                     <xsl:text> </xsl:text>
                     <i>Остался один маленький шаг для оформления заказа.</i>
                     <span class="btn btn-success btn-sm" onclick="add_order()">Оформить заказ</span>
                 </div>
-                <!--<hr/>-->
-                <!--<xsl:if test="/page/body/module[@name='CurentUser']/container/user_id = ''">-->
-                    <!--<div class="alert alert-info">-->
-                        <!--<span class="glyphicon glyphicon-ok-sign"/>-->
-                        <!--<xsl:text> </xsl:text>-->
-                        <!--<i><a href="#" class="text-danger" onclick="showThem('register_pop'); return false;"><b>Зарегистрируйтесь</b></a>, пожалуйста, чтобы мы могли осуществлять для вас доставки.</i>-->
-                    <!--</div>-->
-                <!--</xsl:if>-->
             </div>
             <div class="order_form" style="display:none">
                 <div class="alert alert-success">
@@ -190,6 +147,7 @@
                         <xsl:with-param name="no_edit" select="0"/>
                     </xsl:call-template>
                     <div class="col-sm-4" style="text-align: center">
+                        <span class="btn btn-info calc_route" onclick="calc_route(1)">Рассчитать доставку</span>
                     </div>
                     <div class="col-sm-4" style="text-align: center">
                         <input class="btn btn-success btn-submit" type="button" value="Заказать доставку" onclick="test_time_all_routes(1)"/>

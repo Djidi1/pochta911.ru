@@ -231,7 +231,7 @@ class titleProcess extends module_process {
             $phone_user = $this->nModel->formatPhoneNumber($phone);
             $name_exist = $this->nModel->getUserName($phone_user);
             if ($name_exist) {
-                echo "<div class='alert alert-warning'>Пользователь с таким телефоном уже зарегестрирован.<br>Если вы забыли пароль, нажмите ".'<span class="btn-link text-info pointer" onclick="recover_password(\''.$phone_user.'\')">восстановить</span>'.".</div>";
+                echo "<div class='alert alert-warning'>Пользователь с таким телефоном уже зарегестрирован.<br>Если вы забыли пароль, нажмите ".'<span class="btn-link text-info pointer" onclick="recover_password(\''.$phone.'\')">восстановить</span>'.".</div>";
             }else {
                 $pin_code = mt_rand(1000, 9999);
                 $sms_id = $this->send_sms($phone_user, $pin_code);
@@ -240,9 +240,9 @@ class titleProcess extends module_process {
                 } else {
                     $user_id = $this->nModel->createUser($name, $phone_user, $desc, $pin_code, $sms_id);
                     if ($user_id > 0) {
-                        echo "<div class='alert alert-warning'>Ошибка регистрации пользователя<br>Если данная ошибка повторяется, сообщите нам об этом по телефону.</div>";
+                        echo "<div class='alert alert-success'>$name, спасибо за регистрацию.<br>Временный пароль для входа отправлен на номер: $phone </div><!-- $pin_code -->";
                     }else {
-                        echo "<div class='alert alert-success'>$name, спасибо за регистрацию. Временный пароль для входа отправлен на номер: $phone </div><!-- $pin_code -->";
+                        echo "<div class='alert alert-warning'>Ошибка регистрации пользователя.<br>Если данная ошибка повторяется, сообщите нам об этом по телефону.</div>";
                     }
                 }
             }

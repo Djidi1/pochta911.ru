@@ -298,15 +298,15 @@ class pageProcess extends module_process {
 			//stop($page->toArray());
 			if ($page->id > 0) {
 				$res = $this->nModel->update($page);
-				$pFile = new fileProcess($this->modName,$page->id);
-				$pFile->update('update');
+//				$pFile = new fileProcess($this->modName,$page->id);
+//				$pFile->update('update');
 				if ($res !== false) $this->nView->viewMessage('Страница изменена', 'Сообщение');
 				if ($res === false) $this->nView->viewError('Не возможно сохранить страницу');
 				$this->updated = true;
 				$action = 'line';
 			//	$this->Vals->setValTo('view',$page->id,'GET');
 			} else {
-				$p = 'Не возможно сохранить страницу '.$this->modName;
+				$p = 'Невозможно сохранить страницу '.$this->modName;
 				$this->nView->viewMessage($p, 'Сообщение');
 				$action = 'line';
 			}
@@ -484,7 +484,7 @@ class pageView extends module_view {
 		global $System;
 		$this->pXSL[] = RIVC_ROOT.'layout/form.xsl';
 		$Container = $this->newContainer('form');
-		$form = new CFormGenerator('pages', SITE_ROOT.$this->modName.'/update-'.$page->id.'/', 'POST', 0);
+		$form = new CFormGenerator('pages', '/pages/update-'.$page->id.'/', 'POST', 0);
 		$form->addHidden('update', $page->id, 'update');
 		$form->addHidden('user_id', $user_id, 'user_id');
 //		$form->addBox('access', '1','Пометить NEW', '1', $page->access, '', '', '');

@@ -23,6 +23,8 @@ span.address { display: block;  text-align: right;}
 .footerText { float: right;   margin-top: -10px;}
 .callme_viewform {color: maroon !important;font-weight: bold;}
 
+a:hover .text-success { color: #5bb85b; }
+a:hover .text-danger { color: #d9534f; }
 
 #orders_table td, #orders_table th { text-align: center; }
 

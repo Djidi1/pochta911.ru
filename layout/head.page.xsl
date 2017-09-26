@@ -30,27 +30,15 @@
 							<span class="icon-bar"/>
 							<span class="icon-bar"/>
 						</button>
-						<a class="navbar-brand" href="/" title="Доставка цветов">
+						<a class="navbar-brand" href="/" title="Скорая почта">
 							<img src="./images/logo.png?v3" alt="Logo"/>
-							<span class="header1" style="display:none;">Доставка цветов</span>
+							<span class="header1" style="display:none;">Скорая почта</span>
 						</a>
 					</div>
 
 					<!-- Collect the nav links, forms, and other content for toggling -->
 					<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-						<ul class="nav navbar-nav">
-							<li>
-								<!--<a class="callme_viewform" href="#">Зарегистрироваться</a>-->
-								<a href="#" onclick="showThem('register_pop'); return false;"><b class="text-danger">Зарегистрироваться</b></a>
-							</li>
-							<li>
-								<a href="/pages/view-49/">Условия сотрудничества</a>
-							</li>
-						</ul>
-						<script>
-							var now_path = window.location.pathname;
-							$('ul li a[href="'+now_path+'"]').parent().addClass('active');
-						</script>
+
 
 
 						<div class="moduletable_LoginForm navbar-right">
@@ -59,6 +47,23 @@
 						<div class="phone-in-header phone">
 							<span class="city-code">(812)</span> 242-80-81
 						</div>
+
+						<ul class="nav navbar-nav navbar-right">
+							<li>
+								<a href="#order_edit" onclick="add_order()"><span class="text-success"><i class="fa fa-file-text-o"/> Заказать доставку</span></a>
+							</li>
+							<li>
+								<a href="/pages/view-49/"><i class="fa fa-info"/> Условия сотрудничества</a>
+							</li>
+							<li>
+								<a href="#" onclick="showThem('register_pop', 'Регистрация'); return false;"><span class="text-danger"><i class="fa fa-user-plus"/> Регистрация</span></a>
+							</li>
+						</ul>
+						<script>
+							var now_path = window.location.pathname;
+							$('ul li a[href="'+now_path+'"]').parent().addClass('active');
+						</script>
+
 					</div><!-- /.navbar-collapse -->
 				</div><!-- /.container-fluid -->
 			</nav>
@@ -83,7 +88,6 @@
 								<div class="wrapper">
 									<div class="create" style="text-align: right">
 										<span class="btn btn-success" onclick="reg_form_submit(this)">Зарегистрироваться</span>
-										<!--<span class="btn btn-success" onclick="reg_form_submit()">Зарегистрироваться</span>-->
 									</div>
 								</div>
 							</div>

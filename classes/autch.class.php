@@ -125,6 +125,11 @@ class TUser extends database
         return $right;
     }
 
+    public function isPhoneNumber($login){
+        $phone_number = preg_replace("/[^0-9]/", "", ($login) );
+        $phone_number =  '8'.substr($phone_number,1,10);
+        return (is_numeric($phone_number) and strlen($phone_number) == 11) ? $phone_number : $login;
+    }
 
     /**
      * проверка логина и пароля (если имеются) и текущей сессии
@@ -135,6 +140,9 @@ class TUser extends database
     public function authentication($username, $password)
     {
         if ($username == '' || $password == '') return false;
+
+        $username = $this->isPhoneNumber($username);
+
         $sql = 'SELECT * FROM users WHERE login = \'%1$s\' AND pass = \'%2$s\' AND isban = 0';
         $this->query($sql, $username, md5($password));
 

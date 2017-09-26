@@ -14,8 +14,8 @@ function open_dialog(url, title) {
 	});	
 }
 
-function showThem(id){
-	opendialog(id,'Форма входа',350,320);
+function showThem(id, title){
+	opendialog(id, title || 'Форма входа', 350, 320);
 }
 
 function opendialog(id, title){

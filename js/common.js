@@ -202,7 +202,7 @@ function getHouseNumbers() {
 function add_order(){
     var preord = $('.pre_order');
     // Расширяем блок с формой
-    $(preord).parent().attr('class','col-sm-8');
+    $(preord).parent().parent().parent().attr('class','col-sm-8');
     $('.map-form').parent().parent().attr('class','col-sm-4');
 
     // Берем значения из предварительного заказа
@@ -215,9 +215,10 @@ function add_order(){
     var to_house = $(preord).find('select[name="to_house[]"]').val() || '';
     var to_aoguid = $(preord).find('select[name="to_house[]"]').attr('aoguid');
     // Удаляем блок предзаказа
-    $(preord).remove();
+    $(preord).parent().parent().remove();
     // Скрываем дополнительный блок
     $('.additional_block').hide();
+    $('.add_order_main').hide();
 
     var ord = $('.order_form');
     // Отображаем блок заказа
