@@ -511,7 +511,6 @@ class ordersModel extends module_model {
 
 	public function orderUpdate($params) {
         $order_id = $params['order_id'];
-        $order_id = $params['order_id'];
         $id_user = $params['id_user'];
         $date = $params['date'];
         $from = $params['from'][0];
@@ -1220,7 +1219,7 @@ class ordersProcess extends module_process {
         $sms = $smsru->send_one($data); // Отправка сообщения и возврат данных в переменную
 
         $sms_json = json_encode($sms);
-        $this->nModel->saveSMSlog ($phone, $sms->sms_id, $sms->status_code, $sms->status_text, $sms_json);
+        $this->nModel->saveSMSlog ($phone, $sms->sms_id, $sms->status_code, @$sms->status_text || 'OK', $sms_json);
 
         if ($sms->status == "OK") { // Запрос выполнен успешно
 //            echo "<div class='alert alert-success'>Сообщение на ваш телефон отправлено успешно.</div>";
