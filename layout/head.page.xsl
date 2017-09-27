@@ -32,7 +32,6 @@
 						</button>
 						<a class="navbar-brand" href="/" title="Скорая почта">
 							<img src="./images/logo.png?v3" alt="Logo"/>
-							<span class="header1" style="display:none;">Скорая почта</span>
 						</a>
 					</div>
 
@@ -107,7 +106,6 @@
 				</script>
 			</div>
 			<div class="mobile-sub-menu">
-				<div class="slogan">Скорая Почта</div>
 				<div class="moduletable_LoginForm login-mobile">
 					<xsl:apply-templates select="//page/body/module[@name = 'CurentUser']/container[@module = 'login']"/>
 				</div>

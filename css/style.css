@@ -1,9 +1,10 @@
 /*@media print {BODY>* {display: none; } DIV.printBlock { display: block !important; }}*/
-
+@font-face {font-family: 'Ubuntu Condensed';  src: url(/fonts/UbuntuCondensed-Regular.ttf);}
+/*
 @font-face {font-family: 'Roboto Condensed';  src: url(/fonts/RobotoCondensed-Regular.ttf);}
 @font-face {font-family: 'Roboto Condensed Light';  src: url(/fonts/RobotoCondensed-Light.ttf);}
 @font-face {font-family: 'Roboto Condensed Bold';  src: url(/fonts/RobotoCondensed-Bold.ttf);}
-
+*/
 BODY {min-width: 320px;}
 #logo img { width: 120px;}
 .header1 {display: block}
@@ -28,14 +29,19 @@ a:hover .text-danger { color: #d9534f; }
 
 #orders_table td, #orders_table th { text-align: center; }
 
-.navbar-nav>li>a.lobster  { font-family: 'Roboto Condensed', sans-serif; font-size: 120%; }
+.navbar-nav>li>a.lobster  { font-family: 'Ubuntu Condensed', sans-serif; font-size: 120%; }
 .cameraContent  h1, .cameraContent  h3 {
     text-align: center;
     text-shadow: 1px 1px 0 rgba(0,0,0,.75);
+    margin: 0;
 }
-.cameraContent  h1 { font-family: 'Roboto Condensed Light', sans-serif; font-size: 4em; }
-.cameraContent  h1 b { font-family: 'Roboto Condensed Bold', sans-serif; }
-.cameraContent  h3 { font-family: 'Roboto Condensed Light', sans-serif; font-size: 3em; }
+DIV.camera_caption {
+    top: 38px !important;
+    bottom: auto;
+}
+.cameraContent { font-family: 'Ubuntu Condensed', sans-serif; }
+.cameraContent h1 { font-size: 4em; }
+.cameraContent h3 { font-size: 3em; }
 
 .main { width: 90%;  margin: 0 auto;  }
 .clear {clear: both}

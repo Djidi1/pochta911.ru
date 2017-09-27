@@ -5,28 +5,22 @@
         <xsl:if test="//page/@isAjax != 1">
             <div class="row">
                 <div class="camera_wrap">
-                    <div data-src="images/image_1.jpg">
+                    <div data-src="images/image_1.jpg?v1">
                         <div class="camera_caption fadeIn camera_effected">
-                            <h1><i>СКОРАЯ <b>ПОЧТА</b></i></h1>
-                            <h3>Мы спасаем ваше время</h3>
+                            <h3>Курьерская доставка в Санкт-Петербурге</h3>
+                            <h1>в течении 3-х часов - это про нас!</h1>
                         </div>
                     </div>
-                    <div data-src="images/image_2.jpg">
+                    <div data-src="images/image_1.jpg?v1">
                         <div class="camera_caption  fadeIn camera_effected">
-                            <h1><i>СКОРАЯ <b>ПОЧТА</b></i></h1>
-                            <h3>Мы спасаем ваше время</h3>
+                            <h1>Постоянным клиентам скидка до 20%</h1>
+                            <h3>подробности у менеджеров</h3>
                         </div>
                     </div>
-                    <div data-src="images/image_3.jpg">
+                    <div data-src="images/image_1.jpg?v1">
                         <div class="camera_caption fadeIn camera_effected">
-                            <h1><i>СКОРАЯ <b>ПОЧТА</b></i></h1>
-                            <h3>Мы спасаем ваше время</h3>
-                        </div>
-                    </div>
-                    <div data-src="images/image_4.jpg">
-                        <div class="camera_caption fadeIn camera_effected">
-                            <h1><i>СКОРАЯ <b>ПОЧТА</b></i></h1>
-                            <h3>Мы спасаем ваше время</h3>
+                            <h1>Скидка до 10%</h1>
+                            <h3>при онлайн заказе</h3>
                         </div>
                     </div>
                 </div>

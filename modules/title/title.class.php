@@ -207,7 +207,7 @@ class titleProcess extends module_process {
             $this_user_id = $this->nModel->getUserID($phone_user);
 
             $pin_code = mt_rand(1000, 9999);
-            $sms_id = $this->send_sms($phone_user, $pin_code);
+            $sms_id = $this->send_sms($phone_user, $pin_code, 1);
             if (!$sms_id) {
                 echo 2;
             } else {
@@ -234,7 +234,7 @@ class titleProcess extends module_process {
                 echo "<div class='alert alert-warning'>Пользователь с таким телефоном уже зарегестрирован.<br>Если вы забыли пароль, нажмите ".'<span class="btn-link text-info pointer" onclick="recover_password(\''.$phone.'\')">восстановить</span>'.".</div>";
             }else {
                 $pin_code = mt_rand(1000, 9999);
-                $sms_id = $this->send_sms($phone_user, $pin_code);
+                $sms_id = $this->send_sms($phone_user, $pin_code, 0);
                 if (!$sms_id) {
                     echo "<div class='alert alert-danger'>Ошибка отправки СМС.</div>";
                 } else {
@@ -257,7 +257,7 @@ class titleProcess extends module_process {
                 echo "<div class='alert alert-warning'>Пользователь с таким телефоном не зарегестрирован.</div>";
             } else {
                 $pin_code = mt_rand(1000, 9999);
-                $sms_id = $this->send_sms($phone_user, $pin_code);
+                $sms_id = $this->send_sms($phone_user, $pin_code, 2);
                 if (!$sms_id) {
                     echo "<div class='alert alert-danger'>Ошибка отправки СМС.</div>";
                 } else {
@@ -298,28 +298,26 @@ class titleProcess extends module_process {
         return $time_arr;
     }
 
-    public function send_sms($phone, $pin_code){
+    public function send_sms($phone, $pin_code, $isConfirm = 0){
         $smsru = new SMSRU('69da81b5-ee1e-d004-a1aa-ac83d2687954'); // Ваш уникальный программный ключ, который можно получить на главной странице
 
         $data = new stdClass();
         $data->to = $phone;
-        $data->text = "Для доступа к pochta911.ru используйте логин $phone и пароль $pin_code"; // Текст сообщения
-        $data->from = 'pochta911ru'; // Если у вас уже одобрен буквенный отправитель, его можно указать здесь, в противном случае будет использоваться ваш отправитель по умолчанию
-// $data->time = time() + 7*60*60; // Отложить отправку на 7 часов
-// $data->translit = 1; // Перевести все русские символы в латиницу (позволяет сэкономить на длине СМС)
-// $data->test = 1; // Позволяет выполнить запрос в тестовом режиме без реальной отправки сообщения
-// $data->partner_id = '1'; // Можно указать ваш ID партнера, если вы интегрируете код в чужую систему
-//        $data->test = 1; // Позволяет выполнить запрос в тестовом режиме без реальной отправки сообщения
+        if ($isConfirm == 1) {
+            $data->text = "Подтверждение заказа, введите код $pin_code"; // Подтверждение заказа
+        } elseif ($isConfirm == 2) {
+            $data->text = "Временный пароль от pochta911.ru $pin_code"; // Восстановление доступа
+        } else {
+            $data->text = "Регистрация на pochta911.ru. Логин $phone, разовый пароль $pin_code"; // Регистрация
+        }
+        $data->from = 'pochta911ru';
         $sms = $smsru->send_one($data); // Отправка сообщения и возврат данных в переменную
 
         $sms_json = json_encode($sms);
         $this->nModel->saveSMSlog ($phone, $sms->sms_id, $sms->status_code, @$sms->status_text || 'OK', $sms_json);
-        if ($sms->status == "OK") { // Запрос выполнен успешно
-//            echo "<div class='alert alert-success'>Сообщение на ваш телефон отправлено успешно.</div>";
-//            echo "ID сообщения: $sms->sms_id.";
+        if ($sms->status == "OK") {
             return $sms->sms_id;
         } else {
-//            echo "<div class='alert alert-success'>Сообщение не отправлено. <br/>Код ошибки: $sms->status_code. <br/>Текст ошибки: $sms->status_text.</div>";
             return false;
         }
     }

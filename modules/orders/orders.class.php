@@ -925,7 +925,7 @@ class ordersProcess extends module_process {
                         $this->telegram($message, $chat_id);
                     }
                     if (isset($phone) and $phone != '') {
-                        $this->send_sms($phone, $message);
+                        $this->send_sms($phone, $this->getOrderTextSMS($order_id, $params['status'][0]));
                     }
                 }
 
@@ -976,7 +976,7 @@ class ordersProcess extends module_process {
 					$this->telegram($message, $chat_id);
 				}
                 if (isset($phone) and $phone != '') {
-                    $this->send_sms($phone, $message);
+                    $this->send_sms($phone, $this->getOrderTextSMS($order_id, $new_status));
                 }
 				echo $result;
 			}else {
@@ -1181,6 +1181,37 @@ class ordersProcess extends module_process {
         return $order_info_message;
     }
 
+    public function getOrderTextSMS($order_id, $status){
+        $order_info = $this->nModel->getOrderInfo($order_id);
+        $order_routes_info = $this->nModel->getOrderRoutesInfo($order_id);
+        $order_info_message = "Заказ № " . $order_id . "\r\n";
+        if ($status == 1) {
+            $order_info_message .= "Дата: " . $order_info['date'] . "\r\n";
+            $order_info_message .= "Откуда: " . $order_info['from_addr'] . "\r\n";
+        }
+        $i = 0;
+        foreach ($order_routes_info as $order_route_info) {
+            $i++;
+            if (count($order_routes_info) > 1){
+                $order_info_message .= "Сегмент №$i:\r\n";
+            }
+
+            if ($status == 1 or $status == 4) {
+                $order_info_message .= "Куда: " . $order_route_info['to_addr'] . "\r\n";
+            }
+            if ($order_route_info['id_status'] == 1) {
+                $order_info_message .= "Заказ принят, ожидайте курьера\r\n";
+            } elseif ($order_route_info['id_status'] == 4) {
+                $order_info_message .= "Доставлен получателю\r\n";
+            } elseif ($order_route_info['id_status'] == 5) {
+                $order_info_message .= "Отменен\r\n";
+            } else {
+                $order_info_message .= "Статус: " . $order_route_info['status'] . "\r\n";
+            }
+        }
+        return $order_info_message;
+    }
+
 	public function get_post_date($type = 'to'){
 	    if ($type == 'all') {
             $from = $this->Vals->getVal ( 'date_from', 'POST', 'string' );
@@ -1210,23 +1241,14 @@ class ordersProcess extends module_process {
         $data = new stdClass();
         $data->to = $phone;
         $data->text = $message; // Текст сообщения
-        $data->from = 'pochta911ru'; // Если у вас уже одобрен буквенный отправитель, его можно указать здесь, в противном случае будет использоваться ваш отправитель по умолчанию
-// $data->time = time() + 7*60*60; // Отложить отправку на 7 часов
-// $data->translit = 1; // Перевести все русские символы в латиницу (позволяет сэкономить на длине СМС)
-// $data->test = 1; // Позволяет выполнить запрос в тестовом режиме без реальной отправки сообщения
-// $data->partner_id = '1'; // Можно указать ваш ID партнера, если вы интегрируете код в чужую систему
-//        $data->test = 1; // Позволяет выполнить запрос в тестовом режиме без реальной отправки сообщения
+        $data->from = 'pochta911ru';
         $sms = $smsru->send_one($data); // Отправка сообщения и возврат данных в переменную
-
         $sms_json = json_encode($sms);
         $this->nModel->saveSMSlog ($phone, $sms->sms_id, $sms->status_code, @$sms->status_text || 'OK', $sms_json);
 
         if ($sms->status == "OK") { // Запрос выполнен успешно
-//            echo "<div class='alert alert-success'>Сообщение на ваш телефон отправлено успешно.</div>";
-//            echo "ID сообщения: $sms->sms_id.";
             return true;
         } else {
-//            echo "<div class='alert alert-success'>Сообщение не отправлено. <br/>Код ошибки: $sms->status_code. <br/>Текст ошибки: $sms->status_text.</div>";
             return false;
         }
     }
