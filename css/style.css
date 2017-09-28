@@ -24,8 +24,12 @@ span.address { display: block;  text-align: right;}
 .footerText { float: right;   margin-top: -10px;}
 .callme_viewform {color: maroon !important;font-weight: bold;}
 
-a:hover .text-success { color: #5bb85b; }
-a:hover .text-danger { color: #d9534f; }
+.navbar-inverse .text-success {color: #0bc408;}
+.navbar-inverse .text-danger {color: #d60005;}
+.navbar-inverse .text-info {color: #1cb4ff;}
+.navbar-inverse .text-white {color: #cccccc;}
+.navbar-inverse a {color: #ffffff;}
+.navbar-inverse a:hover span { color: #ffffff; }
 
 #orders_table td, #orders_table th { text-align: center; }
 

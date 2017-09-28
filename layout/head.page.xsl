@@ -52,10 +52,10 @@
 								<a href="#order_edit" onclick="add_order()"><span class="text-success"><i class="fa fa-file-text-o"/> Заказать доставку</span></a>
 							</li>
 							<li>
-								<a href="/pages/view-49/"><i class="fa fa-info"/> Условия сотрудничества</a>
+								<a href="/pages/view-49/"><span class="text-white"><i class="fa fa-info"/> Условия сотрудничества</span></a>
 							</li>
 							<li>
-								<a href="#" onclick="showThem('register_pop', 'Регистрация'); return false;"><span class="text-danger"><i class="fa fa-user-plus"/> Регистрация</span></a>
+								<a href="#" onclick="showThem('register_pop', 'Регистрация'); return false;"><span class="text-info"><i class="fa fa-user-plus"/> Регистрация</span></a>
 							</li>
 						</ul>
 						<script>
