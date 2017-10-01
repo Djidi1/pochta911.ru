@@ -36,7 +36,10 @@ class ordersModel extends module_model {
         $phone = preg_replace("/[^0-9]/", "", ($phone) );
         return '+7'.substr($phone,1,10);
     }
-
+    public function formatPhoneNumber8($phone){
+        $phone = preg_replace("/[^0-9]/", "", ($phone) );
+        return '8'.substr($phone,1,10);
+    }
 	public function exportToExcel($titles,$orders){
         require_once CORE_ROOT . 'classes/PHPExcel.php';
         // Instantiate a new PHPExcel object
@@ -166,10 +169,16 @@ class ordersModel extends module_model {
         return $this->get_assoc_array($sql);
     }
     public function getUserParams($uid) {
-        $sql = "SELECT pay_type, fixprice_inside FROM users u WHERE u.id = $uid";
+        $sql = "SELECT pay_type, fixprice_inside, name, phone FROM users u WHERE u.id = $uid";
         $this->query($sql);
         $result = $this->fetchRowA ();
-        return array('pay_type' => $result['pay_type'], 'fixprice' => $result['fixprice_inside']);
+        $result['phone'] = $this->formatPhoneNumber($result['phone']);
+        return $result;
+    }
+    public function getUserId($phone){
+        $sql = "SELECT id FROM users WHERE phone = '$phone'";
+        $this->query($sql);
+        return $this->getOne();
     }
     public function getPrices() {
         $sql = 'SELECT id, km_from, km_to, km_cost FROM routes_price r';
@@ -620,6 +629,19 @@ class ordersModel extends module_model {
 	    $this->query($sql);
     }
 
+    public function createUser($name, $phone, $desc){
+        $user_id = 0;
+        $sql = "INSERT INTO users (name, email, login, pass, date_reg, isban, prior, title, phone, phone_mess, fixprice_inside, inkass_proc, pay_type, sms_id, `desc`, send_sms) 
+                VALUES ('$name','','$phone','',NOW(),'0','0','$name','$phone','','','','','','$desc', 1)";
+        $test = $this->query($sql);
+        if ($test) {
+            $user_id = $this->insertID();
+            $sql = "INSERT INTO `groups_user` (`group_id`, `user_id`) VALUES ('2', '$user_id')";
+            $this->query($sql);
+        }
+        return $user_id;
+    }
+
 function mydate_to_dmy($date) {
 	return date ( 'd.m.Y', strtotime ( substr ( $date, 0, 20 ) ) );
 }
@@ -805,8 +827,6 @@ class ordersProcess extends module_process {
             $car_couriers = $this->nModel->getCarCouriers();
 			$users = $this->nModel->getUsers($uid);
             $userData = $this->nModel->getUserParams($uid);
-            $user_pay_type = $userData['pay_type'];
-            $user_fix_price = $userData['fixprice'];
 			$prices = $this->nModel->getPrices();
 			$timer = $this->getTimeForSelect();
             $add_prices = $this->nModel->getAddPrices();
@@ -816,7 +836,7 @@ class ordersProcess extends module_process {
 			$client_title = $this->nModel->getClientTitle($uid);
 			$this->nView->viewOrderEdit ( $user_id, $order, $users, $stores, $routes, $pay_types, $statuses,
                 $car_couriers, $timer, $prices, $add_prices, $client_title, $without_menu, $is_single,
-                $user_pay_type, $user_fix_price, $times, $g_price, $goods );
+                $userData, $times, $g_price, $goods );
 		}
 
 		if ($action == 'orderBan') {
@@ -833,6 +853,9 @@ class ordersProcess extends module_process {
             $params['order_id'] = $this->Vals->getVal('order_id', 'POST', 'integer');
             $params['id_user'] = $this->Vals->getVal('id_user', 'POST', 'integer');
             $params['date'] = $this->Vals->getVal('date', 'POST', 'string');
+
+            $user_name = $this->Vals->getVal('user_name', 'POST', 'string');
+            $user_phone = $this->Vals->getVal('user_phone', 'POST', 'string');
 
             $params['from'] = $this->Vals->getVal('from', 'POST', 'array');
             $params['from_region'] = $this->Vals->getVal('from_region', 'POST', 'array');
@@ -895,7 +918,13 @@ class ordersProcess extends module_process {
                 } else {
                     if ($group_id != 2) {
                         $new_user_id = $this->Vals->getVal('new_user_id', 'POST', 'integer');
-                        $user_id = $new_user_id > 0 ? $new_user_id : $user_id;
+                        if ($user_name != '' and $user_phone != ''){
+                            $user_phone = $this->nModel->formatPhoneNumber8($user_phone);
+                            $user_id = $this->nModel->getUserId($user_phone);
+                            $user_id = ($user_id > 0) ? $user_id : $this->nModel->createUser($user_name, $user_phone, 'Регистрация менеджером через новый заказ');
+                        }else {
+                            $user_id = $new_user_id > 0 ? $new_user_id : $user_id;
+                        }
                     }
                     if ($user_id > 0) {
                         $order_id = $this->nModel->orderInsert($user_id, $params);
@@ -1388,15 +1417,16 @@ class ordersView extends module_View {
 	
 	public function viewOrderEdit($user_id, $order, $users, $stores, $routes, $pay_types,
                                   $statuses, $car_couriers, $timer, $prices, $add_prices,
-                                  $client_title, $without_menu, $is_single, $user_pay_type,
-                                  $user_fix_price, $times, $g_price, $goods) {
+                                  $client_title, $without_menu, $is_single, $user_data, $times, $g_price, $goods) {
 		$this->pXSL [] = RIVC_ROOT . 'layout/orders/order.edit.xsl';
         $Container = $this->newContainer('order');
         $this->addAttr('user_id', $user_id, $Container);
         $this->addAttr('today', date('d.m.Y'), $Container);
         $this->addAttr('time_now', time(), $Container);
-        $this->addAttr('user_pay_type', $user_pay_type, $Container);
-        $this->addAttr('user_fix_price', $user_fix_price, $Container);
+        $this->addAttr('user_name', $user_data['name'], $Container);
+        $this->addAttr('user_phone', $user_data['phone'], $Container);
+        $this->addAttr('user_pay_type', $user_data['pay_type'], $Container);
+        $this->addAttr('user_fix_price', $user_data['fixprice_inside'], $Container);
 //        $this->addAttr('time_now_five', $time_now_five_h . ":" . $this->roundUpToAny(date('i')), $Container);
         $time_now_five_min = substr('0'.($this->roundUpToAny(date('i'))),-2);
         $time_now_five_h = date('H');

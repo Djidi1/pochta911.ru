@@ -99,6 +99,22 @@
                             <xsl:call-template name="addresses">
                                 <xsl:with-param name="no_edit" select="$no_edit"/>
                             </xsl:call-template>
+
+                            <xsl:if test="/page/body/module[@name='CurentUser']/container/group_id != 2">
+                                <label>Заказчик</label>
+                                <div class="input-group from-block" style="width:100%">
+                                    <div class="form-control" style="width: 50%;">
+                                        <span class="order-add-title text-warning">Заказчик ФИО</span>
+                                        <input type="text" class="order-route-data" name="user_name" title="Заказчик" value="{@user_name}" required=""/>
+                                    </div>
+                                    <div class="form-control" style="width: 50%;">
+                                        <span class="order-add-title text-warning">
+                                            Телефон заказчика
+                                        </span>
+                                        <input type="text" class="order-route-data phone-number" name="user_phone" title="Телефон заказчика" value="{@user_phone}" required=""/>
+                                    </div>
+                                </div>
+                            </xsl:if>
                         </div>
                         <div class="panel-footer">
                             <div class="row">
@@ -199,13 +215,13 @@
 
                     <div class="form-control" style="width: 30%;">
                         <span class="order-add-title text-warning">Отправитель ФИО</span>
-                        <input type="text" class="order-route-data" name="from_fio[]" title="Отправитель" value="{order/from_fio}" required=""/>
+                        <input type="text" class="order-route-data" name="from_fio[]" title="Отправитель" value="{order/from_fio}" onkeyup="$('[name=user_fio]').val($(this).val())" required=""/>
                     </div>
                     <div class="form-control" style="width: 30%;">
                         <span class="order-add-title text-warning">
                             Телефон отправителя
                         </span>
-                        <input type="text" class="order-route-data phone-number" name="from_phone[]" title="Телефон отправителя" value="{order/from_phone}" required=""/>
+                        <input type="text" class="order-route-data phone-number" name="from_phone[]" title="Телефон отправителя" value="{order/from_phone}" onkeyup="$('[name=user_phone]').val($(this).val())" required=""/>
                     </div>
                     <div class="form-control" style="width: 20%;">
                         <span class="order-add-title text-danger">
