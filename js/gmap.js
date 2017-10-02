@@ -51,6 +51,7 @@ function initMap() { //30.328228,59.939784
         scrollwheel: true,
         zoom: 10
     });
+    google.maps.event.trigger(map, "resize");
 
     directionsDisplay = new google.maps.DirectionsRenderer({
         map: map,
@@ -305,9 +306,9 @@ function calc_route(recalc_cost, dest_point) {
                     if (recalc_cost > 0) {
                         // Если к определенному времени, то прибавляем стоимость точного времени.
                         var cost_target = $('.target').prop('checked') ? $('#km_target').val() : 0;
-                        // Если установлена фиксированная стоимость по городу, то ставим ее вместо расчетной
+                        // Если установлена фиксированная стоимость по городу, то ставим ее вместо расчетной (но только для доставки в пределах города)
                         var fixprice_inside = $('#user_fix_price').val();
-                        var cost_in_spb = (fixprice_inside == 0 || typeof fixprice_inside == 'undefined')
+                        var cost_in_spb = ((fixprice_inside == 0 || typeof fixprice_inside == 'undefined') || distanceOutSideSPb > 0)
                             ? (parseFloat(cost_km) + parseFloat(cost_Neva))
                             : fixprice_inside;
 

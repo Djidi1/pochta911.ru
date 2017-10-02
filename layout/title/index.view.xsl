@@ -160,6 +160,7 @@
                     <input id="g_price_{id}" class="g_prices" type="hidden" value="{value}" goods_id="{goods_id}" condition="{condition}" price="{price}" fixed="{fixed}" mult="{mult}" rel="{goods_name}"/>
                 </xsl:for-each>
                 <span class="his_time_now small text-muted" style="float: right;"/>
+                <input type="hidden" id="user_fix_price" value="{@user_fix_price}"/>
                 <input type="hidden" id="time_now" value="{@time_now}"/>
             </div>
         </div>

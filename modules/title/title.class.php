@@ -120,6 +120,15 @@ class titleModel extends module_model {
         }
         return $name;
     }
+
+    public function getUserParams($uid) {
+        $sql = "SELECT pay_type, fixprice_inside, name, phone FROM users u WHERE u.id = $uid";
+        $this->query($sql);
+        $result = $this->fetchRowA ();
+        $result['phone'] = $this->formatPhoneNumber($result['phone']);
+        return $result;
+    }
+
     public function saveSMSlog($phone, $sms_id, $sms_status_code, $sms_status_text, $sms_json){
         $sql = "INSERT INTO log_sms_send (sms_phone, sms_id, status_text, status_code, desc_json, dk, sms_type) VALUES ('$phone', '$sms_id','$sms_status_code','$sms_status_text','$sms_json',NOW(), 'mes')";
         $this->query($sql);
@@ -275,8 +284,9 @@ class titleProcess extends module_process {
             $timer = $this->getTimeForSelect();
             $times = $this->nModel->getTimeCheckList();
             $add_prices = $this->nModel->getAddPrices();
+            $userData = $this->nModel->getUserParams($user_id);
             list($g_price, $goods) = $this->nModel->getGoodsPriceList();
-			$this->nView->view_Index ( $news, $prices, $add_prices, $pay_types, $timer, $times, $g_price, $goods );
+			$this->nView->view_Index ( $news, $prices, $add_prices, $pay_types, $timer, $times, $g_price, $goods, $userData );
 			$this->updated = true;
 		}
 		
@@ -329,12 +339,16 @@ class titleView extends module_View {
 		$this->pXSL = array ();
 	}
 	
-	public function view_Index($news, $prices, $add_prices, $pay_types, $timer, $times, $g_price, $goods) {
+	public function view_Index($news, $prices, $add_prices, $pay_types, $timer, $times, $g_price, $goods, $user_data) {
 		$Container = $this->newContainer ( 'index' );
 		$this->pXSL [] = RIVC_ROOT . 'layout/' . $this->modName . '/index.view.xsl';
 
         $this->addAttr('today', date('Y-m-d'), $Container);
         $this->addAttr('time_now', time(), $Container);
+        $this->addAttr('user_name', $user_data['name'], $Container);
+        $this->addAttr('user_phone', $user_data['phone'], $Container);
+        $this->addAttr('user_pay_type', $user_data['pay_type'], $Container);
+        $this->addAttr('user_fix_price', $user_data['fixprice_inside'], $Container);
 
         $this->arrToXML ( $timer, $Container, 'timer' );
         $this->arrToXML ( $times, $Container, 'times' );

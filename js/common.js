@@ -204,7 +204,8 @@ function add_order(){
     // Расширяем блок с формой
     $(preord).parent().parent().parent().attr('class','col-sm-8');
     $('.map-form').parent().parent().attr('class','col-sm-4');
-
+    // Сообщаем что изменился размер окна
+    window.dispatchEvent(new Event('resize'));
     // Берем значения из предварительного заказа
     var from = $(preord).find('input[name="from[]"]').val();
     var from_region = $(preord).find('input[name="from[]"]').attr('region');

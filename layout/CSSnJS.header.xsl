@@ -32,7 +32,7 @@
         <script src="/js/camera.min.js"/>
         <script src="/js/jquery.mask.js"/>
         <script src="/js/ready.js?v2.53"/>
-        <script src="/js/common.js?v3.17"/>
+        <script src="/js/common.js?v3.18"/>
         <script src="/js/script.js?v2.72"/>
         <script src="//cdn.ckeditor.com/4.6.1/full/ckeditor.js"/>
         <script src="//cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js"/>
@@ -42,7 +42,7 @@
             <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyAnDrB-qO4i5uCua-4krGQsloWYJBRtgNU&libraries=places"></script>
                 ]]>
             </xsl:text>
-        <script src="/js/gmap.js?v2.6"/>
+        <script src="/js/gmap.js?v2.63"/>
         <script>
             $(function(){
             if ($('#edit_content').length){CKEDITOR.replace( 'edit_content');}
