@@ -131,7 +131,11 @@
                             <strong>Дата доставки</strong>
                         </div>
                         <div class="col-xs-6">
-                            <input class="form-control date-picker" type="text" name="date" onkeyup="check_user(this)" value="" size="30" required=""/>
+                            <input class="form-control date-picker" type="text" name="date" onkeyup="check_user(this)" value="" size="30" required="">
+                                <xsl:attribute name="mindate">
+                                    <xsl:value-of select="@today"/>
+                                </xsl:attribute>
+                            </input>
                         </div>
                     </div>
                     <label>Откуда</label>

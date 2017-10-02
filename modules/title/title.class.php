@@ -333,7 +333,7 @@ class titleView extends module_View {
 		$Container = $this->newContainer ( 'index' );
 		$this->pXSL [] = RIVC_ROOT . 'layout/' . $this->modName . '/index.view.xsl';
 
-        $this->addAttr('today', date('d.m.Y'), $Container);
+        $this->addAttr('today', date('Y-m-d'), $Container);
         $this->addAttr('time_now', time(), $Container);
 
         $this->arrToXML ( $timer, $Container, 'timer' );

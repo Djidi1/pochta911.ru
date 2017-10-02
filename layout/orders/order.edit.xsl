@@ -61,11 +61,11 @@
                                 </div>
                                 <div class="col-sm-3 col-xs-6">
                                     <input class="form-control date-picker" type="text" name="date" onkeyup="check_user(this)" value="{order/date}" size="30" required="">
-                                        <!--<xsl:if test="not(order/date)">-->
-                                            <!--<xsl:attribute name="value">-->
-                                                <!--<xsl:value-of select="@today"/>-->
-                                            <!--</xsl:attribute>-->
-                                        <!--</xsl:if>-->
+                                        <xsl:if test="not(order/date)">
+                                            <xsl:attribute name="mindate">
+                                                <xsl:value-of select="@today"/>
+                                            </xsl:attribute>
+                                        </xsl:if>
                                     </input>
                                 </div>
                                 <xsl:if test="order/id > 0">

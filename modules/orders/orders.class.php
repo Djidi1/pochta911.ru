@@ -1421,7 +1421,7 @@ class ordersView extends module_View {
 		$this->pXSL [] = RIVC_ROOT . 'layout/orders/order.edit.xsl';
         $Container = $this->newContainer('order');
         $this->addAttr('user_id', $user_id, $Container);
-        $this->addAttr('today', date('d.m.Y'), $Container);
+        $this->addAttr('today', date('Y-m-d'), $Container);
         $this->addAttr('time_now', time(), $Container);
         $this->addAttr('user_name', $user_data['name'], $Container);
         $this->addAttr('user_phone', $user_data['phone'], $Container);

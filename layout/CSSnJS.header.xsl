@@ -31,7 +31,7 @@
         <script src="/js/bootstrap-typeahead.min.js"/>
         <script src="/js/camera.min.js"/>
         <script src="/js/jquery.mask.js"/>
-        <script src="/js/ready.js?v2.52"/>
+        <script src="/js/ready.js?v2.53"/>
         <script src="/js/common.js?v3.17"/>
         <script src="/js/script.js?v2.72"/>
         <script src="//cdn.ckeditor.com/4.6.1/full/ckeditor.js"/>

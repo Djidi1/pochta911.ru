@@ -91,7 +91,7 @@ jQuery(function ($) {
 
     $('select.select2').select2();
 
-    $('.date-picker').datetimepicker({format: 'L', locale: 'ru'});
+    $('.date-picker').datetimepicker({format: 'L', locale: 'ru', minDate: $('.date-picker').attr('mindate')});
 
     var start_time = $('.time-picker.start').get();
     var end_time = $('.time-picker.end').get();
